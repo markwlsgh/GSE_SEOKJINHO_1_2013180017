@@ -17,13 +17,18 @@ but WITHOUT ANY WARRANTY.
 
 Renderer *g_Renderer = NULL;
 
+int g_aa = -250;
+
 void RenderScene(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0f, 0.3f, 0.3f, 1.0f);
 
 	// Renderer Test
-	g_Renderer->DrawSolidRect(0, 0, 0, 4, 1, 0, 1, 1);
+	g_Renderer->DrawSolidRect(g_aa, 0, 0, 100, 1, 1, 1, 1); // 100 x 100 흰색 사각형 그림
+	g_aa++;
+	if (g_aa > 250)
+		g_aa = -250;
 
 	glutSwapBuffers();
 }
