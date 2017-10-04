@@ -15,9 +15,10 @@ but WITHOUT ANY WARRANTY.
 
 #include "Renderer.h"
 
-Renderer *g_Renderer = NULL;
+#include "Object.h"
 
-int g_aa = -250;
+Renderer *g_Renderer = NULL;
+Object *g_Object = new Object;
 
 void RenderScene(void)
 {
@@ -25,10 +26,14 @@ void RenderScene(void)
 	glClearColor(0.0f, 0.3f, 0.3f, 1.0f);
 
 	// Renderer Test
-	g_Renderer->DrawSolidRect(g_aa, 0, 0, 100, 1, 1, 1, 1); // 100 x 100 흰색 사각형 그림
-	g_aa++;
-	if (g_aa > 250)
-		g_aa = -250;
+	
+	g_Renderer->DrawSolidRect(g_Object->GetPositionX(), g_Object->GetPositionY(), g_Object->GetPositionZ(), g_Object->GetSize(),
+		g_Object->GetColorRed(), g_Object->GetColorGreen(), g_Object->GetColorBlue(), g_Object->GetColorAlpha()); // 100 x 100 흰색 사각형 그림
+	
+	g_Object->SetPositionX(g_Object->GetPositionX() + g_Object->GetMovingSpeed());
+
+	if (g_Object->GetPositionX() >= 300.0f)
+		g_Object->SetPositionX(-300.0f);
 
 	glutSwapBuffers();
 }
@@ -88,7 +93,8 @@ int main(int argc, char **argv)
 	glutMainLoop();
 
 	delete g_Renderer;
-
+	g_Object = NULL;
+	delete g_Object;
     return 0;
 }
 
