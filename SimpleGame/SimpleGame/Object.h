@@ -1,47 +1,47 @@
 #pragma once
 class Object
 {
-	float x;
-	float y;
-	float z;
-	float size;
-	float r;
-	float g;
-	float b;
-	float a;
-	float movingSpeed;
+	float m_x;
+	float m_y;
+	float m_z;
+	float m_size;
+	float m_r;
+	float m_g;
+	float m_b;
+	float m_a;
+	float m_movingSpeed;
 	
 	//speed Vector
-	float speedVx;
-	float speedVy;
-	float speedVz;
+	float m_speedVx;
+	float m_speedVy;
+	float m_speedVz;
 public:
-	Object();
+	Object(int x, int y);
 	~Object();
 
 	// Get Functions
-	float GetPositionX() { return x; }
-	float GetPositionY() { return y; }
-	float GetPositionZ() { return z; }
-	float GetSize() { return size; }
-	float GetColorRed() { return r; }
-	float GetColorGreen() { return g; }
-	float GetColorBlue() { return b; }
-	float GetColorAlpha() { return a; }
-	float GetMovingSpeed() { return movingSpeed; }
+	float GetPositionX() { return m_x; }
+	float GetPositionY() { return m_y; }
+	float GetPositionZ() { return m_z; }
+	float GetSize() { return m_size;	}
+	float GetColorRed() { return m_r; }
+	float GetColorGreen() { return m_g; }
+	float GetColorBlue() { return m_b; }
+	float GetColorAlpha() { return m_a; }
+	float GetMovingSpeed() { return m_movingSpeed; }
 
 	// Set Functions
-	void SetPositionX(float val) {  x = val; }
-	void SetPositionY(float val) {  y = val; }
-	void SetPositionZ(float val) {  z = val; }
-	void SetSize(float val) { size = val; }
-	void SetColorRed(float val) { r = val; }
-	void SetColorGreen(float val) { g = val; }
-	void SetColorBlue(float val) { b = val; }
-	void SetColorAlpha(float val) { a = val; }
-	void SetMovingSpeed(float val) { movingSpeed = val; }
+	void SetPositionX(float val) {  m_x = val; }
+	void SetPositionY(float val) {  m_y = val; }
+	void SetPositionZ(float val) {  m_z = val; }
+	void SetSize(float val) { m_size = val; }
+	void SetColorRed(float val) { m_r = val; }
+	void SetColorGreen(float val) { m_g = val; }
+	void SetColorBlue(float val) { m_b = val; }
+	void SetColorAlpha(float val) { m_a = val; }
+	void SetMovingSpeed(float val) { m_movingSpeed = val; }
 	void SetSpeedVector(float valX, float valY, float valZ) {
-		speedVx = valX; speedVy = valY; speedVz = valZ;}
+		m_speedVx = valX; m_speedVy = valY; m_speedVz = valZ;}
 
 	void Update();
 };

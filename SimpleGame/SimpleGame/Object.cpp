@@ -2,18 +2,18 @@
 #include "Object.h"
 #include <Windows.h>
 
-Object::Object() :	x(0),
-					y(-250),
-					z(0),
-					size(10),
-					r(1),
-					g(0),
-					b(1),
-					a(1),
-					movingSpeed(1.0f),
-					speedVx(0.1f),
-					speedVy(0.1f),
-					speedVz(0.1f)
+Object::Object(int x, int y) :	m_x(x),
+								m_y(y),
+								m_z(0),
+								m_size(10),
+								m_r(1),
+								m_g(0),
+								m_b(1),
+								m_a(1),
+								m_movingSpeed(1.0f),
+								m_speedVx(0.1f),
+								m_speedVy(0.1f),
+								m_speedVz(0.1f)
 {
 }
 
@@ -27,15 +27,15 @@ void Object::Update()
 {
 	float elapsedTime = 1.5f;
 	// 현재위치 = 이전위치 + 속도 * 시간
-	x = x + speedVx * elapsedTime;
-	y = y + speedVy * elapsedTime;
-	z = z + speedVz * elapsedTime;
+	m_x = m_x + m_speedVx * elapsedTime;
+	m_y = m_y + m_speedVy * elapsedTime;
+	m_z = m_z + m_speedVz * elapsedTime;
 
-	if (x >= 250 || x <= -250)
-		speedVx *= -1;
-	if (y >= 250 || y <= -250)
-		speedVy *= -1;
-	if (z >= 250 || z <= -250)
-		speedVz *= -1;
+	if (m_x >= 250 || m_x <= -250)
+		m_speedVx *= -1;
+	if (m_y >= 250 || m_y <= -250)
+		m_speedVy *= -1;
+	if (m_z >= 250 || m_z <= -250)
+		m_speedVz *= -1;
 
 }

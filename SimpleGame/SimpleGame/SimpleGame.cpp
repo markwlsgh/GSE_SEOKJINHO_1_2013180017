@@ -18,7 +18,9 @@ but WITHOUT ANY WARRANTY.
 #include "Object.h"
 
 Renderer *g_Renderer = NULL;
-Object *g_Object = new Object;
+Object *g_Object = NULL;
+
+int g_clickedMouse = false;
 
 void RenderScene(void)
 {
@@ -38,8 +40,22 @@ void Idle(void)
 	g_Object->Update();
 }
 
+// button
+// GLUT_LEFT_BUTTON , GLUT_MIDDLE_BUTTON , GLUT_RIGHT_BUTTON
+// state
+// GLUT_UP , GLUT_DOWN
+// 클릭이나 드래그 같은것이 구현되지 않아서 직접 구현 해야 함.
 void MouseInput(int button, int state, int x, int y)
 {
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+		g_clickedMouse = 1;
+	if (state == GLUT_UP && g_clickedMouse == 1)
+		g_clickedMouse = 2;
+
+	if (g_clickedMouse == 2) {
+		g_Object->SetPositionX((500 + x) * 0.5f);
+		g_Object->SetPositionY(y);
+	}
 	RenderScene();
 }
 
@@ -78,6 +94,8 @@ int main(int argc, char **argv)
 	{
 		std::cout << "Renderer could not be initialized.. \n";
 	}
+	g_Object = new Object(0, 0);
+
 
 	glutDisplayFunc(RenderScene);
 	glutIdleFunc(Idle);
