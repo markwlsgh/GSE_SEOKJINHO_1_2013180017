@@ -25,22 +25,17 @@ void RenderScene(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0f, 0.3f, 0.3f, 1.0f);
 
-	// Renderer Test
-	
 	g_Renderer->DrawSolidRect(g_Object->GetPositionX(), g_Object->GetPositionY(), g_Object->GetPositionZ(), g_Object->GetSize(),
 		g_Object->GetColorRed(), g_Object->GetColorGreen(), g_Object->GetColorBlue(), g_Object->GetColorAlpha()); // 100 x 100 흰색 사각형 그림
-	
-	g_Object->SetPositionX(g_Object->GetPositionX() + g_Object->GetMovingSpeed());
-
-	if (g_Object->GetPositionX() >= 300.0f)
-		g_Object->SetPositionX(-300.0f);
 
 	glutSwapBuffers();
 }
 
 void Idle(void)
 {
+	// Renderer Test
 	RenderScene();
+	g_Object->Update();
 }
 
 void MouseInput(int button, int state, int x, int y)
