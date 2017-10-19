@@ -9,7 +9,6 @@ class Object
 	float m_g;
 	float m_b;
 	float m_a;
-	float m_movingSpeed;
 	
 	//speed Vector
 	float m_speedVx;
@@ -28,7 +27,7 @@ public:
 	float GetColorGreen() { return m_g; }
 	float GetColorBlue() { return m_b; }
 	float GetColorAlpha() { return m_a; }
-	float GetMovingSpeed() { return m_movingSpeed; }
+
 
 	// Set Functions
 	void SetPositionX(float val) {  m_x = val; }
@@ -39,7 +38,6 @@ public:
 	void SetColorGreen(float val) { m_g = val; }
 	void SetColorBlue(float val) { m_b = val; }
 	void SetColorAlpha(float val) { m_a = val; }
-	void SetMovingSpeed(float val) { m_movingSpeed = val; }
 	void SetSpeedVector(float valX, float valY, float valZ) {
 		m_speedVx = valX; m_speedVy = valY; m_speedVz = valZ;}
 

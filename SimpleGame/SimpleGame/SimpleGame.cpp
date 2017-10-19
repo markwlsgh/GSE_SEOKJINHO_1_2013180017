@@ -14,11 +14,10 @@ but WITHOUT ANY WARRANTY.
 #include "Dependencies\freeglut.h"
 
 #include "Renderer.h"
-
-#include "Object.h"
+#include "SceneMgr.h"
 
 Renderer *g_Renderer = NULL;
-Object *g_Object = NULL;
+SceneMgr *g_SceneMgr = new SceneMgr;
 
 int g_clickedMouse = false;
 
@@ -27,17 +26,22 @@ void RenderScene(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0f, 0.3f, 0.3f, 1.0f);
 
-	g_Renderer->DrawSolidRect(g_Object->GetPositionX(), g_Object->GetPositionY(), g_Object->GetPositionZ(), g_Object->GetSize(),
-		g_Object->GetColorRed(), g_Object->GetColorGreen(), g_Object->GetColorBlue(), g_Object->GetColorAlpha()); // 100 x 100 흰색 사각형 그림
-
+	if (g_SceneMgr->GetObjectCnt() != 0) {
+		for (int i = 0; i < g_SceneMgr->GetObjectCnt(); ++i) {
+			g_Renderer->DrawSolidRect(g_SceneMgr->GetObjectToSceneMgr(i)->GetPositionX(), g_SceneMgr->GetObjectToSceneMgr(i)->GetPositionY(), g_SceneMgr->GetObjectToSceneMgr(i)->GetPositionZ(),
+				g_SceneMgr->GetObjectToSceneMgr(i)->GetSize(), g_SceneMgr->GetObjectToSceneMgr(i)->GetColorRed(),
+				g_SceneMgr->GetObjectToSceneMgr(i)->GetColorGreen(), g_SceneMgr->GetObjectToSceneMgr(i)->GetColorBlue(),
+				g_SceneMgr->GetObjectToSceneMgr(i)->GetColorAlpha()); // 100 x 100 흰색 사각형 그림
+		}
+	}
 	glutSwapBuffers();
 }
 
 void Idle(void)
 {
+	g_SceneMgr->UpdateAllObject();
 	// Renderer Test
 	RenderScene();
-	g_Object->Update();
 }
 
 // button
@@ -53,8 +57,10 @@ void MouseInput(int button, int state, int x, int y)
 		g_clickedMouse = 2;
 
 	if (g_clickedMouse == 2) {
-		g_Object->SetPositionX(x - (WINDOWSIZE_WIDTH *0.5f) );
-		g_Object->SetPositionY((WINDOWSIZE_HEIGHT *0.5f) -y);
+		//g_Object = new Object(x - (WINDOWSIZE_WIDTH * 0.5f) , (WINDOWSIZE_HEIGHT *0.5f) - y );
+		//g_Object->SetPositionX(x - (WINDOWSIZE_WIDTH *0.5f) );
+		//g_Object->SetPositionY((WINDOWSIZE_HEIGHT *0.5f) -y);
+		g_SceneMgr->CreateObject(x - (WINDOWSIZE_WIDTH * 0.5f), (WINDOWSIZE_HEIGHT *0.5f) - y);
 	}
 	RenderScene();
 }
@@ -94,8 +100,6 @@ int main(int argc, char **argv)
 	{
 		std::cout << "Renderer could not be initialized.. \n";
 	}
-	g_Object = new Object(0, 0);
-
 
 	glutDisplayFunc(RenderScene);
 	glutIdleFunc(Idle);
@@ -106,8 +110,7 @@ int main(int argc, char **argv)
 	glutMainLoop();
 
 	delete g_Renderer;
-	g_Object = NULL;
-	delete g_Object;
+	delete g_SceneMgr;
     return 0;
 }
 

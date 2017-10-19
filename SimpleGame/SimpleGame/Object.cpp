@@ -5,15 +5,14 @@
 Object::Object(int x, int y) :	m_x(x),
 								m_y(y),
 								m_z(0),
-								m_size(10),
+								m_size(3),
 								m_r(1),
-								m_g(0),
+								m_g(1),
 								m_b(1),
 								m_a(1),
-								m_movingSpeed(1.0f),
-								m_speedVx(0.1f),
-								m_speedVy(0.1f),
-								m_speedVz(0.1f)
+								m_speedVx( (rand()%2 -0.5) * 0.1f ),
+								m_speedVy( (rand()%2 -0.5) * 0.1f ),
+								m_speedVz( (rand()%2 -0.5) * 0.1f )
 {
 }
 
