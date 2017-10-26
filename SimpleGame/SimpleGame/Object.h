@@ -28,7 +28,6 @@ public:
 	float GetColorBlue() { return m_b; }
 	float GetColorAlpha() { return m_a; }
 
-
 	// Set Functions
 	void SetPositionX(float val) {  m_x = val; }
 	void SetPositionY(float val) {  m_y = val; }
@@ -41,6 +40,9 @@ public:
 	void SetSpeedVector(float valX, float valY, float valZ) {
 		m_speedVx = valX; m_speedVy = valY; m_speedVz = valZ;}
 
-	void Update();
+	// Update()
+	void Update(float elapsedTime );
+	// Colide
+	bool isColide(Object& a, Object& b);
 };
 

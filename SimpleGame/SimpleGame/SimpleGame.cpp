@@ -13,11 +13,12 @@ but WITHOUT ANY WARRANTY.
 #include "Dependencies\glew.h"
 #include "Dependencies\freeglut.h"
 
-#include "Renderer.h"
 #include "SceneMgr.h"
 
-Renderer *g_Renderer = NULL;
-SceneMgr *g_SceneMgr = new SceneMgr;
+
+SceneMgr *g_SceneMgr = NULL;
+
+DWORD g_prevTime = 0;
 
 int g_clickedMouse = false;
 
@@ -26,20 +27,18 @@ void RenderScene(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0f, 0.3f, 0.3f, 1.0f);
 
-	if (g_SceneMgr->GetObjectCnt() != 0) {
-		for (int i = 0; i < g_SceneMgr->GetObjectCnt(); ++i) {
-			g_Renderer->DrawSolidRect(g_SceneMgr->GetObjectToSceneMgr(i)->GetPositionX(), g_SceneMgr->GetObjectToSceneMgr(i)->GetPositionY(), g_SceneMgr->GetObjectToSceneMgr(i)->GetPositionZ(),
-				g_SceneMgr->GetObjectToSceneMgr(i)->GetSize(), g_SceneMgr->GetObjectToSceneMgr(i)->GetColorRed(),
-				g_SceneMgr->GetObjectToSceneMgr(i)->GetColorGreen(), g_SceneMgr->GetObjectToSceneMgr(i)->GetColorBlue(),
-				g_SceneMgr->GetObjectToSceneMgr(i)->GetColorAlpha()); // 100 x 100 흰색 사각형 그림
-		}
-	}
+	DWORD currTime = timeGetTime();
+	DWORD elapsedTime = currTime - g_prevTime;
+	g_prevTime = currTime;
+	// g_SceneMgr -> UpdateAllActorObject( float(elapsedTime) )
+	g_SceneMgr->UpdateAllObject(float(elapsedTime));
+	g_SceneMgr -> DrawAllObject();
+
 	glutSwapBuffers();
 }
 
 void Idle(void)
 {
-	g_SceneMgr->UpdateAllObject();
 	// Renderer Test
 	RenderScene();
 }
@@ -94,12 +93,15 @@ int main(int argc, char **argv)
 		std::cout << "GLEW 3.0 not supported\n ";
 	}
 
-	// Initialize Renderer
-	g_Renderer = new Renderer(500, 500);
-	if (!g_Renderer->IsInitialized())
-	{
-		std::cout << "Renderer could not be initialized.. \n";
-	}
+	//Initialize Renderer
+
+   g_SceneMgr = new SceneMgr(500,500);
+   //for (int i = 0 ; i< 200; i++)
+   //{
+   // 오브젝트 생성 x ,y 좌표값.랜덤 생성
+   // g_SceneMgr -> AddActorObject(x,y,);
+   //}
+	g_prevTime = timeGetTime();
 
 	glutDisplayFunc(RenderScene);
 	glutIdleFunc(Idle);
@@ -109,7 +111,6 @@ int main(int argc, char **argv)
 
 	glutMainLoop();
 
-	delete g_Renderer;
 	delete g_SceneMgr;
     return 0;
 }
