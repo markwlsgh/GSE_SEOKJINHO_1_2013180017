@@ -27,5 +27,7 @@ public:
 
 	//Set()
 	void SetRenderer(int x, int y) { m_Renderer = new Renderer(500, 500); }
+
+	 bool ColisionTest(Object* a, Object* b);
 };
 
