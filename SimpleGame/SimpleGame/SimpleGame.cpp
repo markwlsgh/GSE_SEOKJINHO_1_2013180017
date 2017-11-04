@@ -20,7 +20,7 @@ SceneMgr *g_SceneMgr = NULL;
 
 DWORD g_prevTime = 0;
 
-int g_clickedMouse = false;
+bool g_LButtonDown = false;
 
 void RenderScene(void)
 {
@@ -30,7 +30,7 @@ void RenderScene(void)
 	DWORD currTime = timeGetTime();
 	DWORD elapsedTime = currTime - g_prevTime;
 	g_prevTime = currTime;
-	// g_SceneMgr -> UpdateAllActorObject( float(elapsedTime) )
+	
 	g_SceneMgr->UpdateAllObject(float(elapsedTime));
 	g_SceneMgr -> DrawAllObject();
 
@@ -40,6 +40,7 @@ void RenderScene(void)
 void Idle(void)
 {
 	// Renderer Test
+
 	RenderScene();
 }
 
@@ -51,15 +52,13 @@ void Idle(void)
 void MouseInput(int button, int state, int x, int y)
 {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
-		g_clickedMouse = 1;
-	if (state == GLUT_UP && g_clickedMouse == 1)
-		g_clickedMouse = 2;
+		g_LButtonDown = true;
 
-	if (g_clickedMouse == 2) {
-		//g_Object = new Object(x - (WINDOWSIZE_WIDTH * 0.5f) , (WINDOWSIZE_HEIGHT *0.5f) - y );
-		//g_Object->SetPositionX(x - (WINDOWSIZE_WIDTH *0.5f) );
-		//g_Object->SetPositionY((WINDOWSIZE_HEIGHT *0.5f) -y);
-		g_SceneMgr->CreateObject(x - (WINDOWSIZE_WIDTH * 0.5f), (WINDOWSIZE_HEIGHT *0.5f) - y);
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
+		if (g_LButtonDown) {
+			g_SceneMgr->CreateObject(x - (WINDOWSIZE_WIDTH * 0.5f), (WINDOWSIZE_HEIGHT *0.5f) - y, OBJECT_CHARACTER);
+		}
+		g_LButtonDown = false;
 	}
 	RenderScene();
 }
@@ -93,6 +92,13 @@ int main(int argc, char **argv)
 		std::cout << "GLEW 3.0 not supported\n ";
 	}
 
+
+	glutDisplayFunc(RenderScene);
+	glutIdleFunc(Idle);
+	glutKeyboardFunc(KeyInput);
+	glutMouseFunc(MouseInput);
+	glutSpecialFunc(SpecialKeyInput);
+
 	//Initialize Renderer
 
    g_SceneMgr = new SceneMgr(500,500);
@@ -101,17 +107,16 @@ int main(int argc, char **argv)
    // ¿ÀºêÁ§Æ® »ý¼º x ,y ÁÂÇ¥°ª.·£´ý »ý¼º
    // g_SceneMgr -> AddActorObject(x,y,);
    //}
-	g_prevTime = timeGetTime();
+   // ºôµù
+   g_SceneMgr->CreateObject(0, 0, OBJECT_BUILDING);
 
-	glutDisplayFunc(RenderScene);
-	glutIdleFunc(Idle);
-	glutKeyboardFunc(KeyInput);
-	glutMouseFunc(MouseInput);
-	glutSpecialFunc(SpecialKeyInput);
+
+	g_prevTime = timeGetTime();
 
 	glutMainLoop();
 
 	delete g_SceneMgr;
+
     return 0;
 }
 

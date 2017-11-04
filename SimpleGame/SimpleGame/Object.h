@@ -1,16 +1,17 @@
 #pragma once
 class Object
 {
+	int objectType;
+
 	float m_x;
 	float m_y;
 	float m_z;
 	float m_size;
 	float m_color[4];		// 0 r 1 b 2 g 3 a
-	
+
 	//speed Vector
-	float m_speedVx;
-	float m_speedVy;
-	float m_speedVz;
+	float m_moveDir[3]; // x,y,z
+	float m_speed;
 
 	// is colision ?
 	bool m_isColision;
@@ -18,7 +19,7 @@ class Object
 	// Life
 	float m_life;
 	float m_lifeTime;
-
+	int m_type;
 public:
 	Object(int x, int y);
 	~Object();
@@ -27,7 +28,7 @@ public:
 	float GetPositionX() { return m_x; }
 	float GetPositionY() { return m_y; }
 	float GetPositionZ() { return m_z; }
-	float GetSize() { return m_size ;	}
+	float GetSize() { return m_size; }
 	float GetColorRed() { return m_color[0]; }
 	float GetColorGreen() { return m_color[1]; }
 	float GetColorBlue() { return m_color[2]; }
@@ -35,6 +36,8 @@ public:
 	bool GetIsColision() { return m_isColision; }
 	float GetHalfSize() { return m_size *0.5f; }
 
+	float GetLife() { return m_life; }
+	float GetLifeTime() { return m_lifeTime; }
 	// Set Functions
 	void SetPositionX(float val) {  m_x = val; }
 	void SetPositionY(float val) {  m_y = val; }
@@ -46,9 +49,12 @@ public:
 		m_color[2] = green;
 		m_color[3] = alpha;
 	}
-	void SetSpeedVector(float valX, float valY, float valZ) {
-		m_speedVx = valX; m_speedVy = valY; m_speedVz = valZ;}
+	void SetObjectType(float type) { m_type = type; }
+	void SetMoveDirVector(float valX, float valY, float valZ) {
+		m_moveDir[0] = valX; m_moveDir[1] = valY; m_moveDir[2] = valZ;}
 	void SetIsColision(bool a) { m_isColision = a; }
+	void SetLife(int val) { m_life = val; }
+	void SetSpeed(float val) { m_speed = val; }
 
 	// Update()
 	void Update(float elapsedTime );
