@@ -3,6 +3,7 @@
 in vec3 a_Position;
 uniform vec4 u_Trans;
 
+
 void main()
 {
 	vec4 newPosition;

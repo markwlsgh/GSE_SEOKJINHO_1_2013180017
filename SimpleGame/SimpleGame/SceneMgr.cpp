@@ -6,10 +6,16 @@ SceneMgr::SceneMgr(int x , int y)
 {
 	m_Renderer = new Renderer(x, y);
 
+	if (m_Renderer->IsInitialized())
+	{
+		std::cout << "SceneMgr::Render could not be initailized.\n";
+	}
 	for (int i = 0; i < MAX_OBJECTS_COUNT; ++i)
 	{
 		m_objects[i] = NULL;
 	}
+
+	m_buildingTexture = m_Renderer->CreatePngTexture("./Resource/death.png");
 }
 
 SceneMgr::~SceneMgr()
@@ -17,151 +23,197 @@ SceneMgr::~SceneMgr()
 	delete m_Renderer;
 }
 
-int SceneMgr::CreateObject(int x, int y, int objectType)
+int SceneMgr::CreateObject(float x, float y, int objectType)
 {
-	for (int i = 0; i < MAX_OBJECTS_COUNT; i++) {
-		if (objectType == OBJECT_CHARACTER) {
-			if (m_objects[i] == NULL) {
-				m_objects[i] = new Object(x, y);
-				m_objects[i]->SetObjectType(objectType);
-				m_objects[i]->SetColor(1, 1, 1, 1);
-				m_objects[i]->SetSpeed(300);
-				m_objects[i]->SetSize(10);
-				m_objects[i]->SetLife(10);
+	for (int i = 0; i < MAX_OBJECTS_COUNT; i++)
+	{
+		if (m_objects[i] == NULL)
+		{
+			m_objects[i] = new Object(x, y, objectType);
+			return i;
+		}
+	}
 
-				return i;
-			}
-		}
-	}
-	if (objectType == OBJECT_BUILDING) {
-		m_buildingObjects[0] = new Object(x, y);
-		m_buildingObjects[0]->SetColor(1, 0, 1, 0);
-		m_buildingObjects[0]->SetSize(50);
-		m_buildingObjects[0]->SetLife(500);
-		m_buildingObjects[0]->SetObjectType(objectType);
-		m_buildingObjects[0]->SetSpeed(0);
-	}
-	for (int i = 0; i < MAX_OBJECTS_COUNT; i++) {
-		if (objectType == OBJECT_BULLET) {
-			if (m_bulletObjects[i] == NULL) {
-				m_bulletObjects[i] = new Object(x, y);
-				m_bulletObjects[i]->SetColor(1, 0, 0, 0);
-				m_bulletObjects[i]->SetSize(2);
-				m_bulletObjects[i]->SetLife(20);
-				m_bulletObjects[i]->SetObjectType(objectType);
-				m_bulletObjects[i]->SetSpeed(600);
-				return i;
-			}
-		}
-	}
-	if (objectType == OBJECT_ARROW) {
-		m_arrowObjects[0] = new Object(x, y);
-		m_arrowObjects[0]->SetColor(0, 1, 0, 0);
-		m_arrowObjects[0]->SetSize(2);
-		m_arrowObjects[0]->SetLife(10);
-		m_arrowObjects[0]->SetObjectType(objectType);
-		m_arrowObjects[0]->SetSpeed(100);
-	}
 }
 
 void SceneMgr::UpdateAllObject(float elapsedTime)
 {
-	float timer = 0.0f;
-	timer += elapsedTime;
-	if (timer >= 0.0005f && m_buildingObjects[0] != NULL) {
-		CreateObject(m_buildingObjects[0]->GetPositionX(), m_buildingObjects[0]->GetPositionY(), OBJECT_BULLET);
-	}
-	//총알 update
-	for (int i = 0; i < MAX_OBJECTS_COUNT; ++i) {
-		if (m_bulletObjects[i] != NULL)
-			m_bulletObjects[i]->Update(elapsedTime);
-		}
+	DoColisionTest();
 
-	// 충돌 변수 초기화
-	for (int i = 0; i < MAX_OBJECTS_COUNT; ++i)
-		if (m_objects[i] != NULL) {
-			m_objects[i]->SetIsColision(false);
-		}
-	// 충돌검사 오브젝트 - 벽
-	for (int i = 0; i < MAX_OBJECTS_COUNT; ++i) {
-			if (m_objects[i] != NULL && m_buildingObjects[0] != NULL) {
-				if (ColisionTest(m_objects[i], m_buildingObjects[0]) == true) {
-					m_objects[i]->SetIsColision(true);
-					m_buildingObjects[0]->SetIsColision(true);
-					m_buildingObjects[0]->SetLife(m_buildingObjects[0]->GetLife() - m_objects[i]->GetLife());
-					std::cout << " 빌딩 체력 : " << m_buildingObjects[0]->GetLife() << std::endl;
-				}
-			}
-	}
-	// 충돌검사 오브젝트 - 총알
-	for (int j = 0; j < MAX_OBJECTS_COUNT; ++j) {
-		for (int i = 0; i < MAX_OBJECTS_COUNT; ++i) {
-			if (m_objects[i] != NULL && m_bulletObjects[j] != NULL) {
-				if (ColisionTest(m_objects[i], m_bulletObjects[j]) == true) {
-					m_objects[i]->SetIsColision(true);
-					m_objects[i]->SetLife(m_objects[i]->GetLife() - m_bulletObjects[j]->GetLife());
-					delete m_bulletObjects[j];
-					m_bulletObjects[j] = NULL;
-				}
-			}
-		}
-	}
-
-
-	//빌딩 체력검사
-	if (m_buildingObjects[0] != NULL) {
-		if (m_buildingObjects[0]->GetLife() < 0.0001f || m_buildingObjects[0]->GetLifeTime() < 0.0001f)
-		{
-			delete m_buildingObjects[0];
-			m_buildingObjects[0] = NULL;
-		}
-		else m_buildingObjects[0]->Update(elapsedTime);
-	}
-	// 오브젝트 체력검사
 	for (int i = 0; i < MAX_OBJECTS_COUNT; ++i)
 	{
 		if (m_objects[i] != NULL) {
-			if (m_objects[i]->GetLife() < 0.0001f || m_objects[i]->GetLifeTime() < 0.0001f || m_objects[i]->GetIsColision() == true)
+			if (m_objects[i]->GetLife() < 0.0001f || m_objects[i]->GetLifeTime() < 0.0001f)
 			{
 				delete m_objects[i];
 				m_objects[i] = NULL;
 			}
-			else {
+			else
+			{
 				m_objects[i]->Update(elapsedTime);
+				// 빌딩이면 총알 생성
+				if (m_objects[i]->GetType() == OBJECT_BUILDING)
+				{
+					if (m_objects[i]->GetLastBullet() > 0.5f)
+					{
+						int bulletID = CreateObject(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), OBJECT_BULLET);
+						m_objects[i]->SetLastBullet(0.f);
+						if (bulletID >= 0)
+						{
+							m_objects[bulletID]->SetParentID(i);
+						}
+					}
+				}
+				// 캐릭터이면 화살생성
+				else if (m_objects[i]->GetType() == OBJECT_CHARACTER)
+				{
+					if (m_objects[i]->GetLastArrow() > 0.5f)
+					{
+						int arrowID = CreateObject(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), OBJECT_ARROW);
+						m_objects[i]->SetLastArrow(0.f);
+						if (arrowID >= 0)
+						{
+							m_objects[arrowID]->SetParentID(i);
+						}
+					}
+				}
 			}
 		}
+	}
+}
+
+void SceneMgr::DoColisionTest()
+{
+	int collisionCount = 0;
+
+	for (int i = 0; i < MAX_OBJECTS_COUNT; i++)
+	{
+		collisionCount = 0;
+		if (m_objects[i] != NULL)
+		{
+			for (int j = i + 1; j < MAX_OBJECTS_COUNT; j++)
+			{
+				if (m_objects[j] != NULL && m_objects[i] != NULL)
+				{
+					if (BoxColisionTest(m_objects[i], m_objects[j]))
+					{
+						//빌딩 - 캐릭터
+						if (m_objects[i]->GetType() == OBJECT_BUILDING  && m_objects[j]->GetType() == OBJECT_CHARACTER)
+						{
+							m_objects[i]->SetDamage(m_objects[j]->GetLife());
+							m_objects[j]->SetLife(0.f);
+							collisionCount++;
+						}
+						else if (m_objects[j]->GetType() == OBJECT_BUILDING && m_objects[i]->GetType() == OBJECT_CHARACTER)
+						{
+							m_objects[j]->SetDamage(m_objects[i]->GetLife());
+							m_objects[i]->SetLife(0.f);
+							collisionCount++;
+						}
+						// 캐릭터 - 총알
+						else if (m_objects[i]->GetType() == OBJECT_CHARACTER && m_objects[j]->GetType() == OBJECT_BULLET)
+						{
+							m_objects[i]->SetDamage(m_objects[j]->GetLife());
+							m_objects[j]->SetLife(0.f);
+						}
+						else if (m_objects[j]->GetType() == OBJECT_CHARACTER && m_objects[i]->GetType() == OBJECT_BULLET)
+						{
+							m_objects[j]->SetDamage(m_objects[i]->GetLife());
+							m_objects[i]->SetLife(0.f);
+						}
+						// 빌딩 - 화살
+						else if (m_objects[i]->GetType() == OBJECT_BUILDING && m_objects[j]->GetType() == OBJECT_ARROW)
+						{
+							m_objects[i]->SetDamage(m_objects[j]->GetLife());
+							m_objects[j]->SetLife(0.f);
+						}
+						else if (m_objects[j]->GetType() == OBJECT_BUILDING && m_objects[i]->GetType() == OBJECT_ARROW)
+						{
+							m_objects[j]->SetDamage(m_objects[i]->GetLife());
+							m_objects[i]->SetLife(0.f);
+						}
+						// 캐릭터 - 화살
+						else if (m_objects[i]->GetType() == OBJECT_CHARACTER && m_objects[j]->GetType() == OBJECT_ARROW )
+						{
+							if (m_objects[j]->GetParentID() != i)
+							{
+								m_objects[i]->SetDamage(m_objects[j]->GetLife());
+								m_objects[j]->SetLife(0.f);
+
+								for (int k = 0; k < MAX_OBJECTS_COUNT; ++k)
+								{
+									if (m_objects[k] != NULL)
+									{
+										if (m_objects[k]->GetParentID() == i)
+										{
+											m_objects[k]->SetParentID(-1);
+										}
+									}
+								}
+							}
+						}
+						else if (m_objects[j]->GetType() == OBJECT_CHARACTER && m_objects[i]->GetType() == OBJECT_ARROW)
+						{
+							if (m_objects[i]->GetParentID() != j)
+							{
+								m_objects[j]->SetDamage(m_objects[i]->GetLife());
+								m_objects[i]->SetLife(0.f);
+								for (int k = 0; k < MAX_OBJECTS_COUNT; ++k)
+								{
+									if (m_objects[k] != NULL)
+									{
+										if (m_objects[k]->GetParentID() == j)
+										{
+											m_objects[k]->SetParentID(-1);
+										}
+									}
+								}
+							}
+
+						}
+					}
+				}
+			}
+			//if (collisionCount > 0)
+			//{
+			//}
+			//else
+			//{
+
+			//	if (m_objects[i] != NULL && m_objects[i]->GetType() == OBJECT_BUILDING)
+			//	{
+			//		m_objects[i]->SetColor(1, 1, 0, 1);
+			//	}
+			//}
+		}
+	}
+}
+
+
+void SceneMgr::DrawAllObject()
+{
+
+	for (int i = 0; i < MAX_OBJECTS_COUNT; ++i) 
+	{
+			if (m_objects[i] != NULL) 
+			{
+				if (m_objects[i]->GetType() == OBJECT_BUILDING)
+				{
+					m_Renderer->DrawTexturedRect(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0, m_objects[i]->GetSize(), 1, 1, 1, 1, m_buildingTexture);
+				}
+				else
+				{
+					m_Renderer->DrawSolidRect(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), m_objects[i]->GetPositionZ(),
+						m_objects[i]->GetSize(), m_objects[i]->GetColorRed(),
+						m_objects[i]->GetColorGreen(), m_objects[i]->GetColorBlue(),
+						m_objects[i]->GetColorAlpha());
+				}
+			}
 	}
 
 }
 
-void SceneMgr::DrawAllObject()
-{
-	for (int i = 0; i < MAX_OBJECTS_COUNT; ++i) {
-			if (m_objects[i] != NULL) {
-				m_Renderer->DrawSolidRect(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), m_objects[i]->GetPositionZ(),
-					m_objects[i]->GetSize(), m_objects[i]->GetColorRed(),
-					m_objects[i]->GetColorGreen(), m_objects[i]->GetColorBlue(),
-					m_objects[i]->GetColorAlpha());
-			}
-		}
-		if (m_buildingObjects[0] != NULL) {
-			m_Renderer->DrawSolidRect(m_buildingObjects[0]->GetPositionX(), m_buildingObjects[0]->GetPositionY(), m_buildingObjects[0]->GetPositionZ(),
-				m_buildingObjects[0]->GetSize(), m_buildingObjects[0]->GetColorRed(),
-				m_buildingObjects[0]->GetColorGreen(), m_buildingObjects[0]->GetColorBlue(),
-				m_buildingObjects[0]->GetColorAlpha());
-		}
-
-		for (int i = 0; i < MAX_OBJECTS_COUNT; ++i) {
-			if (m_bulletObjects[i] != NULL) {
-				m_Renderer->DrawSolidRect(m_bulletObjects[i]->GetPositionX(), m_bulletObjects[i]->GetPositionY(), m_bulletObjects[i]->GetPositionZ(),
-					m_bulletObjects[i]->GetSize(), m_bulletObjects[i]->GetColorRed(),
-					m_bulletObjects[i]->GetColorGreen(), m_bulletObjects[i]->GetColorBlue(),
-					m_bulletObjects[i]->GetColorAlpha());
-			}
-		}
-}
-
-bool SceneMgr::ColisionTest(Object* a, Object* b)
+bool SceneMgr::BoxColisionTest(Object* a, Object* b)
 {
 	if (a->GetPositionX() + a->GetHalfSize() < b->GetPositionX() - b->GetHalfSize()
 			|| a->GetPositionX() - a->GetHalfSize() > b->GetPositionX() + b->GetHalfSize()) {

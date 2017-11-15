@@ -1,19 +1,95 @@
 #include "stdafx.h"
 #include "Object.h"
 #include <Windows.h>
+#include "SceneMgr.h"
+#include <math.h>
 
-Object::Object(int x, int y) :
+Object::Object(float x, float y, int type) :
 	m_x(x),
 	m_y(y),
 	m_z(0),
 	m_size(30),
 	m_isColision(false),
-	m_lifeTime(1000),
-	objectType(0)
+	m_type(type),
+	m_coolTime(0),
+	m_isShoot(false),
+	m_parentID(-1),
+	m_lastBullet(0.f),
+	m_lastArrow(0.f)
 {
-	m_moveDir[0] = (rand() % 20 - 10)*0.1;
-	m_moveDir[1] = (rand() % 20 - 10)*0.1;
-	m_moveDir[2] = (rand() % 20 - 10)*0.1;
+	if (type == OBJECT_BUILDING)
+	{
+		m_color[0] = 1;
+		m_color[1] = 1;
+		m_color[2] = 0;
+		m_color[3] = 1;
+
+		m_moveDir[0] = 0;
+		m_moveDir[1] = 0;
+
+		m_speed = 0.f;
+
+		m_size = 50;
+		m_life = 500;
+
+		m_lifeTime = 100000.f;
+	}
+	else if (type == OBJECT_CHARACTER)
+	{
+		m_color[0] = 1;
+		m_color[1] = 1;
+		m_color[2] = 1;
+		m_color[3] = 1;
+
+		m_moveDir[0] = (((float)std::rand() / (float)RAND_MAX - 0.5f));
+		m_moveDir[1] = (((float)std::rand() / (float)RAND_MAX - 0.5f));
+
+		m_speed = 300.f;
+
+		m_size = 10;
+		m_life = 10;
+
+		m_lifeTime = 100000.f;
+	}
+	else if (type == OBJECT_BULLET)
+	{
+		m_color[0] = 1;
+		m_color[1] = 0;
+		m_color[2] = 0;
+		m_color[3] = 1;
+
+		m_moveDir[0] = (((float)std::rand() / (float)RAND_MAX - 0.5f));
+		m_moveDir[1] = (((float)std::rand() / (float)RAND_MAX - 0.5f));
+
+		m_speed = 600.f;
+
+		m_size = 2;
+		m_life = 20;
+
+		m_lifeTime = 100000.f;
+	}
+	else if (type == OBJECT_ARROW)
+	{
+		m_color[0] = 0;
+		m_color[1] = 1;
+		m_color[2] = 0;
+		m_color[3] = 1;
+
+		m_moveDir[0] = (((float)std::rand() / (float)RAND_MAX - 0.5f));
+		m_moveDir[1] = (((float)std::rand() / (float)RAND_MAX - 0.5f));
+
+		m_speed = 100.f;
+
+		m_size = 2;
+		m_life = 20;
+
+		m_lifeTime = 100000.f;
+	}
+
+	else
+	{
+		std::cout << "Wrong Object Type" << type << "\n";
+	}
 }
 
 
@@ -24,37 +100,60 @@ Object::~Object()
 
 void Object::Update(float elapsedTime)
 {
-	//m_life -= 0.1f;
-	//m_lifeTime -= 0.1f;
-	// elapsed time * 0.001f
-	float pixelPerSecond = elapsedTime * 0.001f ;
-	// 현재위치 = 이전위치 + 속도 * 시간
-	if (m_type == OBJECT_CHARACTER) {
-		if (m_isColision == true)
-			SetColor(1, 0, 0, 0);
-		if (m_isColision == false)
-			SetColor(1, 1, 1, 1);
-	}
 
-		m_x = m_x + m_speed * m_moveDir[0] * pixelPerSecond;
-		m_y = m_y + m_speed * m_moveDir[1] * pixelPerSecond;
-		m_z = m_z + m_speed * m_moveDir[2] * pixelPerSecond;
+	float elapsedTimeInSecond = elapsedTime * 0.001f ;
 	
-		if (m_x + m_size *0.5 > 250) {
+	m_lastBullet += elapsedTimeInSecond;
+	m_lastArrow += elapsedTimeInSecond;
+
+
+	// 현재위치 = 이전위치 + 속도 * 시간
+		m_x = m_x + m_speed * m_moveDir[0] * elapsedTimeInSecond;
+		m_y = m_y + m_speed * m_moveDir[1] * elapsedTimeInSecond;
+		m_z = m_z + m_speed * m_moveDir[2] * elapsedTimeInSecond;
+	
+	if (m_x + m_size *0.5 > 250)
+	{
 		m_moveDir[0] *= -1;
 		m_x = 250 - m_size * 0.5f;
+
+		if (m_type == OBJECT_BULLET)
+		{
+			m_life = 0.f;
+		}
 	}
-	if (m_x - m_size *0.5 < -250) {
+
+	if (m_x - m_size *0.5 < -250)
+	{
 		m_moveDir[0] *= -1;
 		m_x = -250 + m_size * 0.5f;
-	}	
-	if (m_y + m_size *0.5 > 250) {
+		if (m_type == OBJECT_BULLET)
+		{
+			m_life = 0.f;
+		}
+	}
+
+
+	if (m_y + m_size *0.5 > 250) 
+	{
 		m_moveDir[1] *= -1;
 		m_y = 250 - m_size * 0.5f;
+
+		if (m_type == OBJECT_BULLET)
+		{
+			m_life = 0.f;
+		}
 	}
-	if (m_y - m_size *0.5 < -250) {
+
+	if (m_y - m_size *0.5 < -250)
+	{
 		m_moveDir[1] *= -1;
 		m_y = -250 + m_size * 0.5f;
+
+		if (m_type == OBJECT_BULLET)
+		{
+			m_life = 0.f;
+		}
 	}
 
 
