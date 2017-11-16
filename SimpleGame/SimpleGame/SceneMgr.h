@@ -22,7 +22,7 @@ public:
 	~SceneMgr();
 
 	// 오브젝트 생성
-	int CreateObject(float x, float y, int objectType);
+	int CreateObject(float x, float y, int objectType, int teamType);
 	void DeleteObject(int index);
 	// 오브젝트 업데이트, 겟, 
 	void UpdateAllObject(float elpasedTime);
@@ -42,8 +42,11 @@ private:
 	int prevTime;
 	int currentTime;
 
+	float enemyCooltime = 0.f;
+
 	int objectType;
 
-	GLuint m_buildingTexture = 0;
+	GLuint m_buildingTexture_team1 = 0;
+	GLuint m_buildingTexture_team2 = 0;
 };
 

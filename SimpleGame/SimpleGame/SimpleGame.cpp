@@ -21,6 +21,7 @@ SceneMgr *g_SceneMgr = NULL;
 DWORD g_prevTime = 0;
 
 bool g_LButtonDown = false;
+float g_mouseCooltime = 0.f;
 
 void RenderScene(void)
 {
@@ -30,7 +31,9 @@ void RenderScene(void)
 	DWORD currTime = timeGetTime();
 	DWORD elapsedTime = currTime - g_prevTime;
 	g_prevTime = currTime;
-	
+	g_mouseCooltime += elapsedTime * 0.001f;
+	std::cout << " mouse cooltime : " << g_mouseCooltime << std::endl;
+
 	g_SceneMgr->UpdateAllObject(float(elapsedTime));
 	g_SceneMgr -> DrawAllObject();
 
@@ -56,7 +59,11 @@ void MouseInput(int button, int state, int x, int y)
 
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
 		if (g_LButtonDown) {
-			g_SceneMgr->CreateObject(x - (WINDOWSIZE_WIDTH * 0.5f), (WINDOWSIZE_HEIGHT *0.5f) - y, OBJECT_CHARACTER);
+			if (g_mouseCooltime >= 7.f && (WINDOWHALFSIZE_HEIGHT)-y < 0.f)
+			{
+				g_SceneMgr->CreateObject(x - (WINDOWHALFSIZE_WIDTH), (WINDOWHALFSIZE_HEIGHT)-y, OBJECT_CHARACTER, TEAM_2);
+				g_mouseCooltime = 0.f;
+			}
 		}
 		g_LButtonDown = false;
 	}
@@ -101,15 +108,20 @@ int main(int argc, char **argv)
 
 	//Initialize Renderer
 
-   g_SceneMgr = new SceneMgr(500,500);
+   g_SceneMgr = new SceneMgr(WINDOWSIZE_WIDTH, WINDOWSIZE_HEIGHT);
    //for (int i = 0 ; i< 200; i++)
    //{
    // ¿ÀºêÁ§Æ® »ý¼º x ,y ÁÂÇ¥°ª.·£´ý »ý¼º
    // g_SceneMgr -> AddActorObject(x,y,);
    //}
    // ºôµù
-   g_SceneMgr->CreateObject(0, 0, OBJECT_BUILDING);
+   g_SceneMgr->CreateObject(0, 300, OBJECT_BUILDING, TEAM_1);
+   g_SceneMgr->CreateObject(-150, 300, OBJECT_BUILDING, TEAM_1);
+   g_SceneMgr->CreateObject(150, 300, OBJECT_BUILDING, TEAM_1);
 
+   g_SceneMgr->CreateObject(0, -300, OBJECT_BUILDING, TEAM_2);
+   g_SceneMgr->CreateObject(-150, -300, OBJECT_BUILDING, TEAM_2);
+   g_SceneMgr->CreateObject(150, -300, OBJECT_BUILDING, TEAM_2);
 
 	g_prevTime = timeGetTime();
 

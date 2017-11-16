@@ -20,15 +20,15 @@ class Object
 	float m_lifeTime;
 	int m_type;
 
-	float m_coolTime;
-	bool m_isShoot;
-
 	float m_lastBullet;
 	float m_lastArrow;
 
 	int m_parentID;
+	int m_teamType;
+
+
 public:
-	Object(float x, float y, int type);
+	Object(float x, float y, int type, int teamType);
 	~Object();
 
 	// Get Functions
@@ -42,17 +42,17 @@ public:
 	float GetColorAlpha() { return m_color[3]; }
 	bool GetIsColision() { return m_isColision; }
 	float GetHalfSize() { return m_size *0.5f; }
-	float GetCoolTime() { return m_coolTime; }
 
 	float GetLife() { return m_life; }
 	float GetLifeTime() { return m_lifeTime; }
-	bool GetIsShoot() { return m_isShoot; }
-	
+
 	int GetType() { return m_type; }
 	float GetLastBullet() { return m_lastBullet; }
 	float GetLastArrow() { return m_lastArrow; }
-	int GetParentID() { return m_parentID;  }
 
+
+	int GetParentID() { return m_parentID;  }
+	int GetTeamType() { return m_teamType;  }
 	// Set Functions
 	void SetPosition(float x, float y, float z) { m_x = x; m_y = y; m_z = z; }
 	void SetPositionX(float val) {  m_x = val; }
@@ -71,14 +71,15 @@ public:
 	void SetIsColision(bool a) { m_isColision = a; }
 	void SetLife(float val) { m_life = val; }
 	void SetSpeed(float val) { m_speed = val; }
-	void SetCoolTime(float val) { m_coolTime = val; }
-	void SetIsShoot(bool a) { m_isShoot = a; }
+
 	void SetDamage(float amount) { m_life -= amount; }
 
 	void SetLastBullet(float val) { m_lastBullet = val; }
 	void SetLastArrow(float val) { m_lastArrow = val; }
 
+
 	void SetParentID(int val) { m_parentID = val; }
+	void SetTeamType(int val) { m_teamType = val; }
 
 
 	// Update()

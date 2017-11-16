@@ -15,7 +15,8 @@ SceneMgr::SceneMgr(int x , int y)
 		m_objects[i] = NULL;
 	}
 
-	m_buildingTexture = m_Renderer->CreatePngTexture("./Resource/death.png");
+	m_buildingTexture_team1 = m_Renderer->CreatePngTexture("./Resource/death.png");
+	m_buildingTexture_team2 = m_Renderer->CreatePngTexture("./Resource/angel.png");
 }
 
 SceneMgr::~SceneMgr()
@@ -23,13 +24,13 @@ SceneMgr::~SceneMgr()
 	delete m_Renderer;
 }
 
-int SceneMgr::CreateObject(float x, float y, int objectType)
+int SceneMgr::CreateObject(float x, float y, int objectType, int teamType)
 {
 	for (int i = 0; i < MAX_OBJECTS_COUNT; i++)
 	{
 		if (m_objects[i] == NULL)
 		{
-			m_objects[i] = new Object(x, y, objectType);
+			m_objects[i] = new Object(x, y, objectType, teamType);
 			return i;
 		}
 	}
@@ -39,6 +40,15 @@ int SceneMgr::CreateObject(float x, float y, int objectType)
 void SceneMgr::UpdateAllObject(float elapsedTime)
 {
 	DoColisionTest();
+
+	enemyCooltime += elapsedTime * 0.001f;
+
+	//적을 5초마다 한번씩 생성
+	if (enemyCooltime > 5.f)
+	{
+		CreateObject(float( rand() % 250 - 250 ) , float  ( rand() % 200 + 50 ) , OBJECT_CHARACTER, TEAM_1);
+		enemyCooltime = 0.f;
+	}
 
 	for (int i = 0; i < MAX_OBJECTS_COUNT; ++i)
 	{
@@ -54,9 +64,9 @@ void SceneMgr::UpdateAllObject(float elapsedTime)
 				// 빌딩이면 총알 생성
 				if (m_objects[i]->GetType() == OBJECT_BUILDING)
 				{
-					if (m_objects[i]->GetLastBullet() > 0.5f)
+					if (m_objects[i]->GetLastBullet() > 10.f)
 					{
-						int bulletID = CreateObject(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), OBJECT_BULLET);
+						int bulletID = CreateObject(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), OBJECT_BULLET, m_objects[i]->GetTeamType());
 						m_objects[i]->SetLastBullet(0.f);
 						if (bulletID >= 0)
 						{
@@ -67,9 +77,9 @@ void SceneMgr::UpdateAllObject(float elapsedTime)
 				// 캐릭터이면 화살생성
 				else if (m_objects[i]->GetType() == OBJECT_CHARACTER)
 				{
-					if (m_objects[i]->GetLastArrow() > 0.5f)
+					if (m_objects[i]->GetLastArrow() > 3.f)
 					{
-						int arrowID = CreateObject(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), OBJECT_ARROW);
+						int arrowID = CreateObject(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), OBJECT_ARROW, m_objects[i]->GetTeamType());
 						m_objects[i]->SetLastArrow(0.f);
 						if (arrowID >= 0)
 						{
@@ -93,7 +103,7 @@ void SceneMgr::DoColisionTest()
 		{
 			for (int j = i + 1; j < MAX_OBJECTS_COUNT; j++)
 			{
-				if (m_objects[j] != NULL && m_objects[i] != NULL)
+				if (m_objects[j] != NULL && m_objects[i] != NULL && m_objects[j]->GetTeamType() != m_objects[i]->GetTeamType())
 				{
 					if (BoxColisionTest(m_objects[i], m_objects[j]))
 					{
@@ -199,7 +209,15 @@ void SceneMgr::DrawAllObject()
 			{
 				if (m_objects[i]->GetType() == OBJECT_BUILDING)
 				{
-					m_Renderer->DrawTexturedRect(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0, m_objects[i]->GetSize(), 1, 1, 1, 1, m_buildingTexture);
+					if (m_objects[i]->GetTeamType() == TEAM_1)
+					{
+						m_Renderer->DrawTexturedRect(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0, m_objects[i]->GetSize(), 1, 1, 1, 1, m_buildingTexture_team1);
+					}
+					else if (m_objects[i]->GetTeamType() == TEAM_2)
+					{
+						m_Renderer->DrawTexturedRect(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0, m_objects[i]->GetSize(), 1, 1, 1, 1, m_buildingTexture_team2);
+
+					}
 				}
 				else
 				{
