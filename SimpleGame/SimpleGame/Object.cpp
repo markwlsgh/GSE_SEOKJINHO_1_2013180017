@@ -30,8 +30,10 @@ Object::Object(float x, float y, int type , int teamType) :
 
 		m_size = 100;
 		m_life = 500;
+		m_originLife = 500;
 
 		m_lifeTime = 100000.f;
+		m_level = LEVEL_SKY;
 	}
 	else if (type == OBJECT_CHARACTER)
 	{
@@ -54,10 +56,13 @@ Object::Object(float x, float y, int type , int teamType) :
 
 		m_speed = 300.f;
 
-		m_size = 10;
+		m_size = 30;
 		m_life = 10;
+		m_originLife = 10;
+
 
 		m_lifeTime = 100000.f;
+		m_level = LEVEL_GROUND;
 	}
 	else if (type == OBJECT_BULLET)
 	{
@@ -80,10 +85,11 @@ Object::Object(float x, float y, int type , int teamType) :
 
 		m_speed = 600.f;
 
-		m_size = 2;
+		m_size = 4;
 		m_life = 20;
 
 		m_lifeTime = 100000.f;
+		m_level = LEVEL_UNDERGROUND;
 	}
 	else if (type == OBJECT_ARROW)
 	{
@@ -107,10 +113,11 @@ Object::Object(float x, float y, int type , int teamType) :
 
 		m_speed = 100.f;
 
-		m_size = 2;
+		m_size = 4;
 		m_life = 20;
 
 		m_lifeTime = 100000.f;
+		m_level = LEVEL_UNDERGROUND;
 	}
 
 	else
@@ -137,13 +144,15 @@ void Object::Update(float elapsedTime)
 		m_x = m_x + m_speed * m_moveDir[0] * elapsedTimeInSecond;
 		m_y = m_y + m_speed * m_moveDir[1] * elapsedTimeInSecond;
 		m_z = m_z + m_speed * m_moveDir[2] * elapsedTimeInSecond;
+
+		m_gauge = m_life / m_originLife;
 	
 	if (m_x + m_size *0.5 > WINDOWHALFSIZE_WIDTH)
 	{
 		m_moveDir[0] *= -1;
 		m_x = WINDOWHALFSIZE_WIDTH - m_size * 0.5f;
 
-		if (m_type == OBJECT_BULLET)
+		if (m_type == OBJECT_BULLET || m_type == OBJECT_ARROW)
 		{
 			m_life = 0.f;
 		}
@@ -153,7 +162,7 @@ void Object::Update(float elapsedTime)
 	{
 		m_moveDir[0] *= -1;
 		m_x = -WINDOWHALFSIZE_WIDTH + m_size * 0.5f;
-		if (m_type == OBJECT_BULLET)
+		if (m_type == OBJECT_BULLET || m_type == OBJECT_ARROW)
 		{
 			m_life = 0.f;
 		}
@@ -165,7 +174,7 @@ void Object::Update(float elapsedTime)
 		m_moveDir[1] *= -1;
 		m_y = WINDOWHALFSIZE_HEIGHT - m_size * 0.5f;
 
-		if (m_type == OBJECT_BULLET)
+		if (m_type == OBJECT_BULLET || m_type == OBJECT_ARROW)
 		{
 			m_life = 0.f;
 		}
@@ -176,7 +185,7 @@ void Object::Update(float elapsedTime)
 		m_moveDir[1] *= -1;
 		m_y = -WINDOWHALFSIZE_HEIGHT + m_size * 0.5f;
 
-		if (m_type == OBJECT_BULLET)
+		if (m_type == OBJECT_BULLET || m_type == OBJECT_ARROW)
 		{
 			m_life = 0.f;
 		}

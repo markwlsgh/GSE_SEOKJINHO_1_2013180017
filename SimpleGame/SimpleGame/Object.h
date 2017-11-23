@@ -18,13 +18,17 @@ class Object
 	// Life
 	float m_life;
 	float m_lifeTime;
+	float m_originLife;
 	int m_type;
+	float m_gauge;
 
 	float m_lastBullet;
 	float m_lastArrow;
 
 	int m_parentID;
 	int m_teamType;
+
+	int m_level;
 
 
 public:
@@ -46,6 +50,8 @@ public:
 	float GetLife() { return m_life; }
 	float GetLifeTime() { return m_lifeTime; }
 
+	float GetGauge() { return m_gauge; }
+
 	int GetType() { return m_type; }
 	float GetLastBullet() { return m_lastBullet; }
 	float GetLastArrow() { return m_lastArrow; }
@@ -53,6 +59,8 @@ public:
 
 	int GetParentID() { return m_parentID;  }
 	int GetTeamType() { return m_teamType;  }
+
+	int GetLevel() { return m_level; }
 	// Set Functions
 	void SetPosition(float x, float y, float z) { m_x = x; m_y = y; m_z = z; }
 	void SetPositionX(float val) {  m_x = val; }

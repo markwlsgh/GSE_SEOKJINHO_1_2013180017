@@ -12,7 +12,10 @@
 #define OBJECT_BULLET 2
 #define OBJECT_ARROW 3
 
-
+#define LEVEL_GOD 0
+#define LEVEL_SKY 0.1
+#define LEVEL_GROUND 0.2
+#define LEVEL_UNDERGROUND 0.3
 
 class SceneMgr
 {
@@ -48,5 +51,7 @@ private:
 
 	GLuint m_buildingTexture_team1 = 0;
 	GLuint m_buildingTexture_team2 = 0;
+	GLuint m_charactorTexture_team1 = 0;
+	GLuint m_charactorTexture_team2 = 0;
 };
 

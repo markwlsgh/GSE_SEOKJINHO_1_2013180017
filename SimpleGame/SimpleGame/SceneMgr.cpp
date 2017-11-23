@@ -17,6 +17,8 @@ SceneMgr::SceneMgr(int x , int y)
 
 	m_buildingTexture_team1 = m_Renderer->CreatePngTexture("./Resource/death.png");
 	m_buildingTexture_team2 = m_Renderer->CreatePngTexture("./Resource/angel.png");
+	m_charactorTexture_team1 = m_Renderer->CreatePngTexture("./Resource/devil.png");
+	m_charactorTexture_team2 = m_Renderer->CreatePngTexture("./Resource/angel_2.png");
 }
 
 SceneMgr::~SceneMgr()
@@ -107,7 +109,7 @@ void SceneMgr::DoColisionTest()
 				{
 					if (BoxColisionTest(m_objects[i], m_objects[j]))
 					{
-						//ºôµù - Ä³¸¯ÅÍ
+						//ºôµù - Ä³¸¯ÅÍ ( building - charactor ) 
 						if (m_objects[i]->GetType() == OBJECT_BUILDING  && m_objects[j]->GetType() == OBJECT_CHARACTER)
 						{
 							m_objects[i]->SetDamage(m_objects[j]->GetLife());
@@ -120,7 +122,20 @@ void SceneMgr::DoColisionTest()
 							m_objects[i]->SetLife(0.f);
 							collisionCount++;
 						}
-						// Ä³¸¯ÅÍ - ÃÑ¾Ë
+						// ºôµù - ÃÑ¾Ë ( building - bullet ) 
+						if (m_objects[i]->GetType() == OBJECT_BUILDING  && m_objects[j]->GetType() == OBJECT_BULLET)
+						{
+							m_objects[i]->SetDamage(m_objects[j]->GetLife());
+							m_objects[j]->SetLife(0.f);
+							collisionCount++;
+						}
+						else if (m_objects[j]->GetType() == OBJECT_BUILDING && m_objects[i]->GetType() == OBJECT_BULLET)
+						{
+							m_objects[j]->SetDamage(m_objects[i]->GetLife());
+							m_objects[i]->SetLife(0.f);
+							collisionCount++;
+						}
+						// Ä³¸¯ÅÍ - ÃÑ¾Ë ( charactor - bullet ) 
 						else if (m_objects[i]->GetType() == OBJECT_CHARACTER && m_objects[j]->GetType() == OBJECT_BULLET)
 						{
 							m_objects[i]->SetDamage(m_objects[j]->GetLife());
@@ -131,7 +146,7 @@ void SceneMgr::DoColisionTest()
 							m_objects[j]->SetDamage(m_objects[i]->GetLife());
 							m_objects[i]->SetLife(0.f);
 						}
-						// ºôµù - È­»ì
+						// ºôµù - È­»ì ( building - arrow ) 
 						else if (m_objects[i]->GetType() == OBJECT_BUILDING && m_objects[j]->GetType() == OBJECT_ARROW)
 						{
 							m_objects[i]->SetDamage(m_objects[j]->GetLife());
@@ -142,7 +157,7 @@ void SceneMgr::DoColisionTest()
 							m_objects[j]->SetDamage(m_objects[i]->GetLife());
 							m_objects[i]->SetLife(0.f);
 						}
-						// Ä³¸¯ÅÍ - È­»ì
+						// Ä³¸¯ÅÍ - È­»ì ( charactor - arrow ) 
 						else if (m_objects[i]->GetType() == OBJECT_CHARACTER && m_objects[j]->GetType() == OBJECT_ARROW )
 						{
 							if (m_objects[j]->GetParentID() != i)
@@ -207,16 +222,34 @@ void SceneMgr::DrawAllObject()
 	{
 			if (m_objects[i] != NULL) 
 			{
-				if (m_objects[i]->GetType() == OBJECT_BUILDING)
+				//drawing building & life gauge
+				if (m_objects[i]->GetType() == OBJECT_BUILDING )
 				{
 					if (m_objects[i]->GetTeamType() == TEAM_1)
 					{
-						m_Renderer->DrawTexturedRect(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0, m_objects[i]->GetSize(), 1, 1, 1, 1, m_buildingTexture_team1);
+						m_Renderer->DrawTexturedRect(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0, m_objects[i]->GetSize(), 1, 1, 1, 1, m_buildingTexture_team1, m_objects[i]->GetLevel());
+						m_Renderer->DrawSolidRectGauge(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY() + m_objects[i]->GetHalfSize() + 10, 0, m_objects[i]->GetSize(), 2, 1, 0, 0, 1, m_objects[i]->GetGauge(), m_objects[i]->GetLevel());
+
 					}
 					else if (m_objects[i]->GetTeamType() == TEAM_2)
 					{
-						m_Renderer->DrawTexturedRect(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0, m_objects[i]->GetSize(), 1, 1, 1, 1, m_buildingTexture_team2);
+						m_Renderer->DrawTexturedRect(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0, m_objects[i]->GetSize(), 1, 1, 1, 1, m_buildingTexture_team2, m_objects[i]->GetLevel());
+						m_Renderer->DrawSolidRectGauge(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY() + m_objects[i]->GetHalfSize() + 10, 0, m_objects[i]->GetSize(), 2, 0, 0, 1, 1, m_objects[i]->GetGauge(), m_objects[i]->GetLevel());
+					}
+				}
+				// drawing charactor & life gauge
+				else if (m_objects[i]->GetType() == OBJECT_CHARACTER)
+				{
+					if (m_objects[i]->GetTeamType() == TEAM_1)
+					{
+						m_Renderer->DrawTexturedRect(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0, m_objects[i]->GetSize(), 1, 1, 1, 1, m_charactorTexture_team1, m_objects[i]->GetLevel());
+						m_Renderer->DrawSolidRectGauge(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY() + m_objects[i]->GetHalfSize() + 10, 0, m_objects[i]->GetSize(), 2, 1, 0, 0, 1, m_objects[i]->GetGauge(), m_objects[i]->GetLevel());
 
+					}
+					else if (m_objects[i]->GetTeamType() == TEAM_2)
+					{
+						m_Renderer->DrawTexturedRect(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0, m_objects[i]->GetSize(), 1, 1, 1, 1, m_charactorTexture_team2, m_objects[i]->GetLevel());
+						m_Renderer->DrawSolidRectGauge(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY() + m_objects[i]->GetHalfSize() + 10, 0, m_objects[i]->GetSize(), 2, 0, 0, 1, 1, m_objects[i]->GetGauge(), m_objects[i]->GetLevel());
 					}
 				}
 				else
@@ -224,8 +257,10 @@ void SceneMgr::DrawAllObject()
 					m_Renderer->DrawSolidRect(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), m_objects[i]->GetPositionZ(),
 						m_objects[i]->GetSize(), m_objects[i]->GetColorRed(),
 						m_objects[i]->GetColorGreen(), m_objects[i]->GetColorBlue(),
-						m_objects[i]->GetColorAlpha());
+						m_objects[i]->GetColorAlpha(), m_objects[i]->GetLevel());
 				}
+
+
 			}
 	}
 
