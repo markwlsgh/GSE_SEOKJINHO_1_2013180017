@@ -9,7 +9,7 @@ class Object
 	float m_color[4];		// 0 r 1 b 2 g 3 a
 
 	//speed Vector
-	float m_moveDir[3]; // x,y,z
+	float m_moveDir[2]; // x,y
 	float m_speed;
 
 	// is colision ?
@@ -30,7 +30,9 @@ class Object
 
 	int m_level;
 
-
+	int m_frameX;
+	int m_frameY;
+	float m_frameTime;
 public:
 	Object(float x, float y, int type, int teamType);
 	~Object();
@@ -56,11 +58,19 @@ public:
 	float GetLastBullet() { return m_lastBullet; }
 	float GetLastArrow() { return m_lastArrow; }
 
+	float GetMoveDirX() { return m_moveDir[0]; }
+	float GetMoveDirY() { return m_moveDir[1]; }
+
 
 	int GetParentID() { return m_parentID;  }
 	int GetTeamType() { return m_teamType;  }
 
 	int GetLevel() { return m_level; }
+
+	int GetFrameX() { return m_frameX; }
+	int GetFrameY() { return m_frameY; }
+	float GetFrameTime() { return m_frameTime; }
+
 	// Set Functions
 	void SetPosition(float x, float y, float z) { m_x = x; m_y = y; m_z = z; }
 	void SetPositionX(float val) {  m_x = val; }
@@ -89,6 +99,10 @@ public:
 	void SetParentID(int val) { m_parentID = val; }
 	void SetTeamType(int val) { m_teamType = val; }
 
+
+	void SetFrameX(int val) { m_frameX = val; }
+	void SetFrameY(int val) { m_frameY = val; }
+	void SetFrameTime(float val) { m_frameTime = val; }
 
 	// Update()
 	void Update(float elapsedTime );

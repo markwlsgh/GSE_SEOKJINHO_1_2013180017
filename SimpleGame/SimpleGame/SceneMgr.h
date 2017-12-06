@@ -37,6 +37,7 @@ public:
 	//Set()
 	 bool BoxColisionTest(Object* a, Object* b);
 	 void DoColisionTest();
+	 void DoFrameUpdate(float elapsedTime);
 
 private:
 	Object *m_objects[MAX_OBJECTS_COUNT];
@@ -53,5 +54,9 @@ private:
 	GLuint m_buildingTexture_team2 = 0;
 	GLuint m_charactorTexture_team1 = 0;
 	GLuint m_charactorTexture_team2 = 0;
+	GLuint m_backgroundTexture = 0;
+	GLuint m_particleTexture = 0;
+	GLuint m_enemyParticleTexture = 0;
+
 };
 

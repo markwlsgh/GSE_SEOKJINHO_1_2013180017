@@ -59,7 +59,7 @@ void MouseInput(int button, int state, int x, int y)
 
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
 		if (g_LButtonDown) {
-			if (g_mouseCooltime >= 1.f && (WINDOWHALFSIZE_HEIGHT)-y < 0.f)
+			if (g_mouseCooltime >= 0.5 && (WINDOWHALFSIZE_HEIGHT)-y < 0.f)
 			{
 				g_SceneMgr->CreateObject(x - (WINDOWHALFSIZE_WIDTH), (WINDOWHALFSIZE_HEIGHT)-y, OBJECT_CHARACTER, TEAM_2);
 				g_mouseCooltime = 0.f;

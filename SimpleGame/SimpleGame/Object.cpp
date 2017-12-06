@@ -14,7 +14,10 @@ Object::Object(float x, float y, int type , int teamType) :
 	m_parentID(-1),
 	m_lastBullet(0.f),
 	m_lastArrow(0.f),
-	m_teamType(teamType)
+	m_teamType(teamType),
+	m_frameX(0),
+	m_frameY(0),
+	m_frameTime(0.f)
 {
 	if (type == OBJECT_BUILDING)
 	{
@@ -85,7 +88,7 @@ Object::Object(float x, float y, int type , int teamType) :
 
 		m_speed = 600.f;
 
-		m_size = 4;
+		m_size = 8;
 		m_life = 20;
 
 		m_lifeTime = 100000.f;
@@ -139,11 +142,11 @@ void Object::Update(float elapsedTime)
 	
 	m_lastBullet += elapsedTimeInSecond;
 	m_lastArrow += elapsedTimeInSecond;
+	//m_frameTime += 
 
 	// 현재위치 = 이전위치 + 속도 * 시간
 		m_x = m_x + m_speed * m_moveDir[0] * elapsedTimeInSecond;
 		m_y = m_y + m_speed * m_moveDir[1] * elapsedTimeInSecond;
-		m_z = m_z + m_speed * m_moveDir[2] * elapsedTimeInSecond;
 
 		m_gauge = m_life / m_originLife;
 	
