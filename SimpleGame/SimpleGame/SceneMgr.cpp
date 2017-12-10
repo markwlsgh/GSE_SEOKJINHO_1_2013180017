@@ -5,6 +5,7 @@
 SceneMgr::SceneMgr(int x , int y)
 {
 	m_Renderer = new Renderer(x, y);
+	m_Sound = new Sound();
 
 	if (m_Renderer->IsInitialized())
 	{
@@ -23,6 +24,9 @@ SceneMgr::SceneMgr(int x , int y)
 	m_enemyParticleTexture = m_Renderer->CreatePngTexture("./Resource/Team1Particle.png");
 	m_particleTexture = m_Renderer->CreatePngTexture("./Resource/Team2Particle.png");
 
+	SoundEffect = m_Sound->CreateSound("./Dependencies/SoundSamples/explosion.wav");
+	createSound_enemy = m_Sound->CreateSound("./Dependencies/SoundSamples/bell.wav");;
+	createSound_my = m_Sound->CreateSound("./Dependencies/SoundSamples/bell1.wav");;
 
 }
 
@@ -30,9 +34,12 @@ SceneMgr::~SceneMgr()
 {
 	delete m_Renderer;
 }
-
 int SceneMgr::CreateObject(float x, float y, int objectType, int teamType)
 {
+	int SoundBG = m_Sound->CreateSound("./Dependencies/SoundSamples/ophelia.mp3");
+
+
+	m_Sound->PlaySound(SoundBG, true, 10);
 	for (int i = 0; i < MAX_OBJECTS_COUNT; i++)
 	{
 		if (m_objects[i] == NULL)
@@ -43,7 +50,7 @@ int SceneMgr::CreateObject(float x, float y, int objectType, int teamType)
 	}
 }
 
-float particleTime;
+
 void SceneMgr::UpdateAllObject(float elapsedTime)
 {
 	DoColisionTest();
@@ -52,11 +59,30 @@ void SceneMgr::UpdateAllObject(float elapsedTime)
 
 	enemyCooltime += elapsedTime * 0.001f;
 
+	// bullet 과 빌딩이 충돌하면 화면 흔들림 추가.
+	if (m_isShake == true)
+	{
+		int shakeBias = rand() % 20;
+		m_shakeTime += elapsedTime * 0.001f;
+		m_Renderer->SetSceneTransform(shakeBias, shakeBias, 1, 1);
+
+		if (m_shakeTime >= 1.f)
+		{
+			m_isShake = false;
+			m_shakeTime = 0.f;
+			m_Renderer->SetSceneTransform(0, 0, 1, 1);
+
+		}
+	}
+
 	//적을 5초마다 한번씩 생성
 	if (enemyCooltime > 5.f)
 	{
 		CreateObject(float( rand() % 250 - 250 ) , float  ( rand() % 200 + 50 ) , OBJECT_CHARACTER, TEAM_1);
 		enemyCooltime = 0.f;
+
+		m_Start = false;
+		m_Sound->PlaySound(createSound_enemy, false, 10);
 	}
 
 	for (int i = 0; i < MAX_OBJECTS_COUNT; ++i)
@@ -134,6 +160,10 @@ void SceneMgr::DoColisionTest()
 						{
 							m_objects[i]->SetDamage(m_objects[j]->GetLife());
 							m_objects[j]->SetLife(0.f);
+
+							m_isShake = true;
+							m_Sound->PlaySound(SoundEffect, false, 60);
+
 							collisionCount++;
 						}
 						else if (m_objects[j]->GetType() == OBJECT_BUILDING && m_objects[i]->GetType() == OBJECT_BULLET)
@@ -221,11 +251,22 @@ void SceneMgr::DoColisionTest()
 	}
 }
 
+
 void SceneMgr::DrawAllObject()
 {
 	//배경 그리기
+	textColorR++;
+	textColorG++;
+	textColorB++;
+	moveTexture+= 2.0f;
+	textColorR %= 10;
+	textColorG %= 10;
+	textColorB %= 10;
+
 	m_Renderer->DrawTexturedRect(0, 0, 0, 800, 1, 1, 1, 1, m_backgroundTexture, LEVEL_UNDERGROUND);
 
+	if( m_Start )
+		m_Renderer->DrawText(-300 + moveTexture, textColorR, GLUT_BITMAP_TIMES_ROMAN_24, textColorR *0.1, textColorG * 0.1, textColorB * 0.1, "GAME START");
 	for (int i = 0; i < MAX_OBJECTS_COUNT; ++i) 
 	{
 
@@ -380,6 +421,6 @@ void SceneMgr::DoFrameUpdate(float elapsedTime)
 			}
 
 
-		}
+		} 
 	}
 }
