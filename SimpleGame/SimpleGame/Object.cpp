@@ -4,7 +4,7 @@
 #include "SceneMgr.h"
 #include <math.h>
 
-Object::Object(float x, float y, int type , int teamType) :
+Object::Object(float x, float y, int type, int teamType) :
 	m_x(x),
 	m_y(y),
 	m_z(0),
@@ -17,7 +17,8 @@ Object::Object(float x, float y, int type , int teamType) :
 	m_teamType(teamType),
 	m_frameX(0),
 	m_frameY(0),
-	m_frameTime(0.f)
+	m_frameTime(0.f),
+	m_particleTime(0.f)
 {
 	if (type == OBJECT_BUILDING)
 	{
@@ -75,6 +76,7 @@ Object::Object(float x, float y, int type , int teamType) :
 			m_color[1] = 0;
 			m_color[2] = 0;
 			m_color[3] = 1;
+			m_moveDir[1] = -((float)(std::rand()) / (float)RAND_MAX);
 		}
 		else if (teamType == TEAM_2)
 		{
@@ -82,11 +84,12 @@ Object::Object(float x, float y, int type , int teamType) :
 			m_color[1] = 0;
 			m_color[2] = 1;
 			m_color[3] = 1;
+			m_moveDir[1] = m_moveDir[1] = ((float)(std::rand()) / (float)RAND_MAX);
 		}
 		m_moveDir[0] = (((float)std::rand() / (float)RAND_MAX - 0.5f));
-		m_moveDir[1] = (((float)std::rand() / (float)RAND_MAX - 0.5f));
 
-		m_speed = 600.f;
+
+		m_speed = 300.f;
 
 		m_size = 8;
 		m_life = 20;

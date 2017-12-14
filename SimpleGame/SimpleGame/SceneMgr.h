@@ -53,7 +53,7 @@ private:
 	float m_shakeTime = 0.f;
 	float m_textColor[3]; //r, g, b
 	float m_textTime = 0.f;
-	float particleTime;
+	float m_climateTime;
 	int textColorR = 5;
 	int textColorG = 1;
 	int textColorB = 9;
@@ -74,6 +74,6 @@ private:
 	GLuint m_backgroundTexture = 0;
 	GLuint m_particleTexture = 0;
 	GLuint m_enemyParticleTexture = 0;
-
+	GLuint m_climateTexture = 0;
 };
 

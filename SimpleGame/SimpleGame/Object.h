@@ -21,6 +21,7 @@ class Object
 	float m_originLife;
 	int m_type;
 	float m_gauge;
+	float m_particleTime;
 
 	float m_lastBullet;
 	float m_lastArrow;
@@ -70,7 +71,7 @@ public:
 	int GetFrameX() { return m_frameX; }
 	int GetFrameY() { return m_frameY; }
 	float GetFrameTime() { return m_frameTime; }
-
+	float GetParticleTime() { return m_particleTime; }
 	// Set Functions
 	void SetPosition(float x, float y, float z) { m_x = x; m_y = y; m_z = z; }
 	void SetPositionX(float val) {  m_x = val; }
@@ -103,6 +104,8 @@ public:
 	void SetFrameX(int val) { m_frameX = val; }
 	void SetFrameY(int val) { m_frameY = val; }
 	void SetFrameTime(float val) { m_frameTime = val; }
+
+	void SetParticleTime(float val) { m_particleTime = val; }
 
 	// Update()
 	void Update(float elapsedTime );

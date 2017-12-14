@@ -23,6 +23,7 @@ SceneMgr::SceneMgr(int x , int y)
 	m_backgroundTexture = m_Renderer->CreatePngTexture("./Resource/background.png");
 	m_enemyParticleTexture = m_Renderer->CreatePngTexture("./Resource/Team1Particle.png");
 	m_particleTexture = m_Renderer->CreatePngTexture("./Resource/Team2Particle.png");
+	m_climateTexture = m_Renderer->CreatePngTexture("./Resource/star.png");
 
 	SoundEffect = m_Sound->CreateSound("./Dependencies/SoundSamples/explosion.wav");
 	createSound_enemy = m_Sound->CreateSound("./Dependencies/SoundSamples/bell.wav");;
@@ -99,7 +100,7 @@ void SceneMgr::UpdateAllObject(float elapsedTime)
 				// 빌딩이면 총알 생성
 				if (m_objects[i]->GetType() == OBJECT_BUILDING)
 				{
-					if (m_objects[i]->GetLastBullet() > 5.f)
+					if (m_objects[i]->GetLastBullet() > 2.f)
 					{
 						int bulletID = CreateObject(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), OBJECT_BULLET, m_objects[i]->GetTeamType());
 						m_objects[i]->SetLastBullet(0.f);
@@ -160,9 +161,12 @@ void SceneMgr::DoColisionTest()
 						{
 							m_objects[i]->SetDamage(m_objects[j]->GetLife());
 							m_objects[j]->SetLife(0.f);
-
+							//int damage = (int)m_objects[j]->GetLife();
+							//char buffer[20];
+							//itoa(damage, buffer, 10);
 							m_isShake = true;
 							m_Sound->PlaySound(SoundEffect, false, 60);
+							//m_Renderer->DrawText(-300 + moveTexture, textColorR, GLUT_BITMAP_TIMES_ROMAN_24, textColorR *0.1, textColorG * 0.1, textColorB * 0.1, buffer);
 
 							collisionCount++;
 						}
@@ -263,8 +267,11 @@ void SceneMgr::DrawAllObject()
 	textColorG %= 10;
 	textColorB %= 10;
 
+	//뒤 배경 그리기
 	m_Renderer->DrawTexturedRect(0, 0, 0, 800, 1, 1, 1, 1, m_backgroundTexture, LEVEL_UNDERGROUND);
 
+	// 기후 그리기
+	m_Renderer->DrawParticleClimate(0, 0, 0, 1, 1, 1, 1, 1.0, -0.1, -0.1, m_climateTexture, m_climateTime, 0.01	);
 	if( m_Start )
 		m_Renderer->DrawText(-300 + moveTexture, textColorR, GLUT_BITMAP_TIMES_ROMAN_24, textColorR *0.1, textColorG * 0.1, textColorB * 0.1, "GAME START");
 	for (int i = 0; i < MAX_OBJECTS_COUNT; ++i) 
@@ -312,12 +319,12 @@ void SceneMgr::DrawAllObject()
 					if (m_objects[i]->GetTeamType() == TEAM_1)
 					{
 						m_Renderer->DrawParticle(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0,
-							m_objects[i]->GetSize(), 1, 1, 1, 1, m_objects[i]->GetMoveDirX() * -10, m_objects[i]->GetMoveDirY() * -10, m_enemyParticleTexture, particleTime);
+							m_objects[i]->GetSize(), 1, 1, 1, 1, m_objects[i]->GetMoveDirX() * -1, m_objects[i]->GetMoveDirY() * -1, m_enemyParticleTexture, m_objects[i]->GetParticleTime(), LEVEL_SKY);
 					}
 					else if (m_objects[i]->GetTeamType() == TEAM_2)
 					{
 						m_Renderer->DrawParticle(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0,
-							m_objects[i]->GetSize(), 1, 1, 1, 1, m_objects[i]->GetMoveDirX() * -10, m_objects[i]->GetMoveDirY() * -10, m_particleTexture, particleTime);
+							m_objects[i]->GetSize(), 1, 1, 1, 1, m_objects[i]->GetMoveDirX() * -1, m_objects[i]->GetMoveDirY() * -1, m_particleTexture, m_objects[i]->GetParticleTime(), LEVEL_SKY);
 					}
 				}
 				else
@@ -359,12 +366,15 @@ void SceneMgr::DeleteObject(int index)
 
 void SceneMgr::DoFrameUpdate(float elapsedTime)
 {
-	particleTime += elapsedTime * 0.001;
+	m_climateTime += elapsedTime * 0.001f;
+
+
 	for (int i = 0; i < MAX_OBJECTS_COUNT; ++i)
 	{
 		if (m_objects[i] != NULL)
 		{
 			m_objects[i]->SetFrameTime(m_objects[i]->GetFrameTime() + elapsedTime * 0.001f);
+			m_objects[i]->SetParticleTime(m_objects[i]->GetParticleTime() + elapsedTime * 0.001);
 			if (m_objects[i]->GetTeamType() == TEAM_1)
 			{
 				if (m_objects[i]->GetType() == OBJECT_BUILDING &&  m_objects[i]->GetFrameTime() > 0.1f)
