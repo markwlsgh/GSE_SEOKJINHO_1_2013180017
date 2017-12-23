@@ -4,9 +4,10 @@
 
 SceneMgr::SceneMgr(int x , int y)
 {
+	m_Start = false;
 	m_Renderer = new Renderer(x, y);
 	m_Sound = new Sound();
-
+	
 	if (m_Renderer->IsInitialized())
 	{
 		std::cout << "SceneMgr::Render could not be initailized.\n";
@@ -16,6 +17,7 @@ SceneMgr::SceneMgr(int x , int y)
 		m_objects[i] = NULL;
 	}
 
+	// 텍스쳐 리소스
 	m_buildingTexture_team1 = m_Renderer->CreatePngTexture("./Resource/enemyBuilding.png");
 	m_buildingTexture_team2 = m_Renderer->CreatePngTexture("./Resource/MyBuilding.png");
 	m_charactorTexture_team1 = m_Renderer->CreatePngTexture("./Resource/enemyChar.png");
@@ -24,11 +26,17 @@ SceneMgr::SceneMgr(int x , int y)
 	m_enemyParticleTexture = m_Renderer->CreatePngTexture("./Resource/Team1Particle.png");
 	m_particleTexture = m_Renderer->CreatePngTexture("./Resource/Team2Particle.png");
 	m_climateTexture = m_Renderer->CreatePngTexture("./Resource/star.png");
+	m_startSceneTexture = m_Renderer->CreatePngTexture("./Resource/GameStartScene.png");
+	m_startFont = m_Renderer->CreatePngTexture("./Resource/startFont.png");
+	m_explosionSprite = m_Renderer->CreatePngTexture("./Resource/explosionAnimation.png");
 
+		// 사운드 리소스
+	titleSound = m_Sound->CreateSound("./Dependencies/SoundSamples/TitleScreen.mp3");
+	SoundBG = m_Sound->CreateSound("./Dependencies/SoundSamples/GameSound.mp3");
 	SoundEffect = m_Sound->CreateSound("./Dependencies/SoundSamples/explosion.wav");
-	createSound_enemy = m_Sound->CreateSound("./Dependencies/SoundSamples/bell.wav");;
-	createSound_my = m_Sound->CreateSound("./Dependencies/SoundSamples/bell1.wav");;
-
+	createSound_enemy = m_Sound->CreateSound("./Dependencies/SoundSamples/monster-sound2.ogg");
+	createSound_my = m_Sound->CreateSound("./Dependencies/SoundSamples/createMy.ogg");
+	startSound = m_Sound->CreateSound("./Dependencies/SoundSamples/gameStartSound.ogg");
 }
 
 SceneMgr::~SceneMgr()
@@ -37,10 +45,10 @@ SceneMgr::~SceneMgr()
 }
 int SceneMgr::CreateObject(float x, float y, int objectType, int teamType)
 {
-	int SoundBG = m_Sound->CreateSound("./Dependencies/SoundSamples/ophelia.mp3");
-
-
-	m_Sound->PlaySound(SoundBG, true, 10);
+	if (m_Start == false)
+	{
+		m_Sound->PlaySoundW(titleSound, false, 0.1);
+	}
 	for (int i = 0; i < MAX_OBJECTS_COUNT; i++)
 	{
 		if (m_objects[i] == NULL)
@@ -54,10 +62,11 @@ int SceneMgr::CreateObject(float x, float y, int objectType, int teamType)
 
 void SceneMgr::UpdateAllObject(float elapsedTime)
 {
+
+	//PlayBGM();
+
 	DoColisionTest();
-
 	DoFrameUpdate(elapsedTime);
-
 	enemyCooltime += elapsedTime * 0.001f;
 
 	// bullet 과 빌딩이 충돌하면 화면 흔들림 추가.
@@ -82,7 +91,6 @@ void SceneMgr::UpdateAllObject(float elapsedTime)
 		CreateObject(float( rand() % 250 - 250 ) , float  ( rand() % 200 + 50 ) , OBJECT_CHARACTER, TEAM_1);
 		enemyCooltime = 0.f;
 
-		m_Start = false;
 		m_Sound->PlaySound(createSound_enemy, false, 10);
 	}
 
@@ -126,11 +134,15 @@ void SceneMgr::UpdateAllObject(float elapsedTime)
 			}
 		}
 	}
-}
 
+
+}
+int framex = 0;
+int framey = 0;
 void SceneMgr::DoColisionTest()
 {
 	int collisionCount = 0;
+
 
 	for (int i = 0; i < MAX_OBJECTS_COUNT; i++)
 	{
@@ -159,14 +171,15 @@ void SceneMgr::DoColisionTest()
 						// 빌딩 - 총알 ( building - bullet ) 
 						if (m_objects[i]->GetType() == OBJECT_BUILDING  && m_objects[j]->GetType() == OBJECT_BULLET)
 						{
+							framex += 1;
+							framey += 1;
+							framex %= 6;
+							framey %= 3;
 							m_objects[i]->SetDamage(m_objects[j]->GetLife());
 							m_objects[j]->SetLife(0.f);
-							//int damage = (int)m_objects[j]->GetLife();
-							//char buffer[20];
-							//itoa(damage, buffer, 10);
 							m_isShake = true;
 							m_Sound->PlaySound(SoundEffect, false, 60);
-							//m_Renderer->DrawText(-300 + moveTexture, textColorR, GLUT_BITMAP_TIMES_ROMAN_24, textColorR *0.1, textColorG * 0.1, textColorB * 0.1, buffer);
+							m_Renderer->DrawTexturedRectSeq(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0, m_objects[i]->GetSize(), 1, 1, 1, 1, m_explosionSprite, framex,framey, 5, 3, m_objects[i]->GetLevel());
 
 							collisionCount++;
 						}
@@ -240,47 +253,53 @@ void SceneMgr::DoColisionTest()
 					}
 				}
 			}
-			//if (collisionCount > 0)
-			//{
-			//}
-			//else
-			//{
 
-			//	if (m_objects[i] != NULL && m_objects[i]->GetType() == OBJECT_BUILDING)
-			//	{
-			//		m_objects[i]->SetColor(1, 1, 0, 1);
-			//	}
-			//}
 		}
 	}
 }
 
+int startText = 0.0f;
 
 void SceneMgr::DrawAllObject()
 {
-	//배경 그리기
-	textColorR++;
-	textColorG++;
-	textColorB++;
-	moveTexture+= 2.0f;
-	textColorR %= 10;
-	textColorG %= 10;
-	textColorB %= 10;
 
-	//뒤 배경 그리기
-	m_Renderer->DrawTexturedRect(0, 0, 0, 800, 1, 1, 1, 1, m_backgroundTexture, LEVEL_UNDERGROUND);
-
-	// 기후 그리기
-	m_Renderer->DrawParticleClimate(0, 0, 0, 1, 1, 1, 1, 1.0, -0.1, -0.1, m_climateTexture, m_climateTime, 0.01	);
-	if( m_Start )
-		m_Renderer->DrawText(-300 + moveTexture, textColorR, GLUT_BITMAP_TIMES_ROMAN_24, textColorR *0.1, textColorG * 0.1, textColorB * 0.1, "GAME START");
-	for (int i = 0; i < MAX_OBJECTS_COUNT; ++i) 
+	//시작 씬 화면
+	if (m_Start == false)
 	{
+		startText++;
+		startText %= 5;
+		m_Renderer->DrawTexturedRect(0, 0, 0, 800, 1, 1, 1, 1, m_startSceneTexture ,LEVEL_UNDERGROUND);
+		m_Renderer->DrawTexturedRect(0, -200, 0, 400, 1, 1, 1, startText, m_startFont, LEVEL_GROUND);
 
-			if (m_objects[i] != NULL) 
+
+	}
+	else
+	{
+		textColorR++;
+		textColorG++;
+		textColorB++;
+		moveTexture += 2.0f;
+		textColorR %= 10;
+		textColorG %= 10;
+		textColorB %= 10;
+
+		//뒤 배경 그리기
+		m_Renderer->DrawTexturedRect(0, 0, 0, 800, 1, 1, 1, 1, m_backgroundTexture, LEVEL_UNDERGROUND);
+
+		m_Renderer->DrawTextW(-285 + moveTexture, textColorR + 10, GLUT_BITMAP_TIMES_ROMAN_24, textColorR *0.1, textColorG * 0.1, textColorB * 0.1, "GAME START");
+		m_Renderer->DrawTextW(-300 + moveTexture, textColorR , GLUT_BITMAP_TIMES_ROMAN_24, textColorR *0.1, textColorG * 0.1, textColorB * 0.1, "GAME START");
+		m_Renderer->DrawTextW(-315 + moveTexture, textColorR - 10, GLUT_BITMAP_TIMES_ROMAN_24, textColorR *0.1, textColorG * 0.1, textColorB * 0.1, "GAME START");
+
+		// 기후 그리기
+		m_Renderer->DrawParticleClimate(0, 0, 0, 1, 1, 1, 1, 1.0, -0.1, -0.1, m_climateTexture, m_climateTime, 0.01);
+
+		for (int i = 0; i < MAX_OBJECTS_COUNT; ++i)
+		{
+
+			if (m_objects[i] != NULL)
 			{
 				//drawing building & life gauge
-				if (m_objects[i]->GetType() == OBJECT_BUILDING )
+				if (m_objects[i]->GetType() == OBJECT_BUILDING)
 				{
 					if (m_objects[i]->GetTeamType() == TEAM_1)
 					{
@@ -299,13 +318,13 @@ void SceneMgr::DrawAllObject()
 				{
 					if (m_objects[i]->GetTeamType() == TEAM_1)
 					{
-						m_Renderer->DrawTexturedRectSeq(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0, m_objects[i]->GetSize(), 1, 1, 1, 1, m_charactorTexture_team1, m_objects[i]->GetFrameX() , m_objects[i]->GetFrameY() , 4, 8, m_objects[i]->GetLevel());
+						m_Renderer->DrawTexturedRectSeq(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0, m_objects[i]->GetSize(), 1, 1, 1, 1, m_charactorTexture_team1, m_objects[i]->GetFrameX(), m_objects[i]->GetFrameY(), 4, 8, m_objects[i]->GetLevel());
 						m_Renderer->DrawSolidRectGauge(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY() + m_objects[i]->GetHalfSize() + 10, 0, m_objects[i]->GetSize(), 2, 1, 0, 0, 1, m_objects[i]->GetGauge(), m_objects[i]->GetLevel());
 
 					}
 					else if (m_objects[i]->GetTeamType() == TEAM_2)
 					{
-						m_Renderer->DrawTexturedRectSeq(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0, m_objects[i]->GetSize(), 1, 1, 1, 1, m_charactorTexture_team2 , m_objects[i]->GetFrameX(), m_objects[i]->GetFrameY(), 4, 4, m_objects[i]->GetLevel());
+						m_Renderer->DrawTexturedRectSeq(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0, m_objects[i]->GetSize(), 1, 1, 1, 1, m_charactorTexture_team2, m_objects[i]->GetFrameX(), m_objects[i]->GetFrameY(), 4, 4, m_objects[i]->GetLevel());
 						m_Renderer->DrawSolidRectGauge(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY() + m_objects[i]->GetHalfSize() + 10, 0, m_objects[i]->GetSize(), 2, 0, 0, 1, 1, m_objects[i]->GetGauge(), m_objects[i]->GetLevel());
 					}
 				}
@@ -337,8 +356,9 @@ void SceneMgr::DrawAllObject()
 
 
 			}
-	}
+		}
 
+	}
 }
 
 bool SceneMgr::BoxColisionTest(Object* a, Object* b)
@@ -433,4 +453,10 @@ void SceneMgr::DoFrameUpdate(float elapsedTime)
 
 		} 
 	}
+}
+
+
+void SceneMgr::PlayBGM(int bgmIndex)
+{
+
 }

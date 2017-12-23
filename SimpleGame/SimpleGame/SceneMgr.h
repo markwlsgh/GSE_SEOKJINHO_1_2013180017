@@ -41,11 +41,21 @@ public:
 	 void DoColisionTest();
 	 void DoFrameUpdate(float elapsedTime);
 
+	 void PlayBGM(int bgmIndex);
+	 //사운드 변수
+	 Sound* m_Sound;
+	 int titleSound;
+	 int SoundBG;
+	 int SoundEffect;
+	 int createSound_enemy;
+	 int createSound_my;
+	 int startSound;
+	 // 씬 시작 변수
+	 bool m_Start;
 private:
 	Object *m_objects[MAX_OBJECTS_COUNT];
 
 	Renderer* m_Renderer;
-	Sound* m_Sound;
 	int prevTime;
 	int currentTime;
 
@@ -59,11 +69,9 @@ private:
 	int textColorB = 9;
 	float moveTexture = 0.f;
 
-	bool m_Start = true;
 	bool m_isShake = false;
-	int SoundEffect;
-	int createSound_enemy;
-	int createSound_my;
+
+
 
 	int objectType;
 
@@ -75,5 +83,8 @@ private:
 	GLuint m_particleTexture = 0;
 	GLuint m_enemyParticleTexture = 0;
 	GLuint m_climateTexture = 0;
+	GLuint m_startSceneTexture = 0;
+	GLuint m_startFont = 0;
+	GLuint m_explosionSprite = 0;
 };
 

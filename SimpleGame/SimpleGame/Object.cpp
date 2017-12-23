@@ -18,7 +18,8 @@ Object::Object(float x, float y, int type, int teamType) :
 	m_frameX(0),
 	m_frameY(0),
 	m_frameTime(0.f),
-	m_particleTime(0.f)
+	m_particleTime(0.f),
+	m_isDamaged(false)
 {
 	if (type == OBJECT_BUILDING)
 	{

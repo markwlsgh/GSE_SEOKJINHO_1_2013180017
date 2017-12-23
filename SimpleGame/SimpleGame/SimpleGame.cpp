@@ -32,9 +32,11 @@ void RenderScene(void)
 	DWORD elapsedTime = currTime - g_prevTime;
 	g_prevTime = currTime;
 	g_mouseCooltime += elapsedTime * 0.001f;
-	std::cout << " mouse cooltime : " << g_mouseCooltime << std::endl;
+	if (g_SceneMgr->m_Start == true)
+	{
 
-	g_SceneMgr->UpdateAllObject(float(elapsedTime));
+		g_SceneMgr->UpdateAllObject(float(elapsedTime));
+	}
 	g_SceneMgr -> DrawAllObject();
 
 	glutSwapBuffers();
@@ -54,24 +56,39 @@ void Idle(void)
 // 클릭이나 드래그 같은것이 구현되지 않아서 직접 구현 해야 함.
 void MouseInput(int button, int state, int x, int y)
 {
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
-		g_LButtonDown = true;
 
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
-		if (g_LButtonDown) {
-			if (g_mouseCooltime >= 0.5 && (WINDOWHALFSIZE_HEIGHT)-y < 0.f)
-			{
-				g_SceneMgr->CreateObject(x - (WINDOWHALFSIZE_WIDTH), (WINDOWHALFSIZE_HEIGHT)-y, OBJECT_CHARACTER, TEAM_2);
-				g_mouseCooltime = 0.f;
+	if (g_SceneMgr->m_Start == true)
+	{
+		if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+			g_LButtonDown = true;
+
+		if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
+			if (g_LButtonDown) {
+				if (g_mouseCooltime >= 0.5 && (WINDOWHALFSIZE_HEIGHT)-y < 0.f)
+				{
+					g_SceneMgr->CreateObject(x - (WINDOWHALFSIZE_WIDTH), (WINDOWHALFSIZE_HEIGHT)-y, OBJECT_CHARACTER, TEAM_2);
+					g_mouseCooltime = 0.f;
+					g_SceneMgr->m_Sound->PlaySound(g_SceneMgr->createSound_my, false, 10);
+				}
 			}
+			g_LButtonDown = false;
 		}
-		g_LButtonDown = false;
 	}
 	RenderScene();
 }
 
 void KeyInput(unsigned char key, int x, int y)
 {
+	if (g_SceneMgr->m_Start == false)
+	{
+		if (key == 's')
+		{
+			g_SceneMgr->m_Start = true;
+			g_SceneMgr->m_Sound->PlaySound(g_SceneMgr->startSound, false, 10);
+			g_SceneMgr->m_Sound->PlaySound(g_SceneMgr->SoundBG, true, 0.5);
+			g_SceneMgr->m_Sound->DeleteSound(g_SceneMgr->titleSound);
+		}
+	}
 	RenderScene();
 }
 
@@ -85,7 +102,7 @@ int main(int argc, char **argv)
 	// Initialize GL things
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-	glutInitWindowPosition(0, 0);
+	glutInitWindowPosition(500, 0);
 	glutInitWindowSize(WINDOWSIZE_WIDTH, WINDOWSIZE_HEIGHT);
 	glutCreateWindow("Game Software Engineering KPU");
 
@@ -109,22 +126,22 @@ int main(int argc, char **argv)
 	//Initialize Renderer
 
    g_SceneMgr = new SceneMgr(WINDOWSIZE_WIDTH, WINDOWSIZE_HEIGHT);
+
    //for (int i = 0 ; i< 200; i++)
    //{
    // 오브젝트 생성 x ,y 좌표값.랜덤 생성
    // g_SceneMgr -> AddActorObject(x,y,);
    //}
    // 빌딩
-   g_SceneMgr->CreateObject(0, 300, OBJECT_BUILDING, TEAM_1);
-   g_SceneMgr->CreateObject(-150, 300, OBJECT_BUILDING, TEAM_1);
-   g_SceneMgr->CreateObject(150, 300, OBJECT_BUILDING, TEAM_1);
+	g_SceneMgr->CreateObject(0, 300, OBJECT_BUILDING, TEAM_1);
+	g_SceneMgr->CreateObject(-150, 300, OBJECT_BUILDING, TEAM_1);
+	g_SceneMgr->CreateObject(150, 300, OBJECT_BUILDING, TEAM_1);
 
-   g_SceneMgr->CreateObject(0, -300, OBJECT_BUILDING, TEAM_2);
-   g_SceneMgr->CreateObject(-150, -300, OBJECT_BUILDING, TEAM_2);
-   g_SceneMgr->CreateObject(150, -300, OBJECT_BUILDING, TEAM_2);
+	g_SceneMgr->CreateObject(0, -300, OBJECT_BUILDING, TEAM_2);
+	g_SceneMgr->CreateObject(-150, -300, OBJECT_BUILDING, TEAM_2);
+	g_SceneMgr->CreateObject(150, -300, OBJECT_BUILDING, TEAM_2);
 
 	g_prevTime = timeGetTime();
-
 	glutMainLoop();
 
 	delete g_SceneMgr;
