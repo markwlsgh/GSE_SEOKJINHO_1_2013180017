@@ -85,7 +85,7 @@ void KeyInput(unsigned char key, int x, int y)
 		{
 			g_SceneMgr->m_Start = true;
 			g_SceneMgr->m_Sound->PlaySound(g_SceneMgr->startSound, false, 10);
-			g_SceneMgr->m_Sound->PlaySound(g_SceneMgr->SoundBG, true, 0.5);
+			g_SceneMgr->m_Sound->PlaySound(g_SceneMgr->SoundBG, true, 30);
 			g_SceneMgr->m_Sound->DeleteSound(g_SceneMgr->titleSound);
 		}
 	}

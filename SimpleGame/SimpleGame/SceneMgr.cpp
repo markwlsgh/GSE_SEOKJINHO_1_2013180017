@@ -37,6 +37,8 @@ SceneMgr::SceneMgr(int x , int y)
 	createSound_enemy = m_Sound->CreateSound("./Dependencies/SoundSamples/monster-sound2.ogg");
 	createSound_my = m_Sound->CreateSound("./Dependencies/SoundSamples/createMy.ogg");
 	startSound = m_Sound->CreateSound("./Dependencies/SoundSamples/gameStartSound.ogg");
+	fireSound = m_Sound->CreateSound("./Dependencies/SoundSamples/fireSound.ogg");
+
 }
 
 SceneMgr::~SceneMgr()
@@ -112,6 +114,8 @@ void SceneMgr::UpdateAllObject(float elapsedTime)
 					{
 						int bulletID = CreateObject(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), OBJECT_BULLET, m_objects[i]->GetTeamType());
 						m_objects[i]->SetLastBullet(0.f);
+						m_Sound->PlaySound(fireSound, false, 5);
+
 						if (bulletID >= 0)
 						{
 							m_objects[bulletID]->SetParentID(i);
@@ -179,8 +183,8 @@ void SceneMgr::DoColisionTest()
 							m_objects[j]->SetLife(0.f);
 							m_isShake = true;
 							m_Sound->PlaySound(SoundEffect, false, 60);
-							m_Renderer->DrawTexturedRectSeq(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0, m_objects[i]->GetSize(), 1, 1, 1, 1, m_explosionSprite, framex,framey, 5, 3, m_objects[i]->GetLevel());
-
+							//이펙트 오브젝트
+							CreateObject(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), OBJECT_EFFECT, m_objects[i]->GetTeamType());
 							collisionCount++;
 						}
 						else if (m_objects[j]->GetType() == OBJECT_BUILDING && m_objects[i]->GetType() == OBJECT_BULLET)
@@ -194,11 +198,15 @@ void SceneMgr::DoColisionTest()
 						{
 							m_objects[i]->SetDamage(m_objects[j]->GetLife());
 							m_objects[j]->SetLife(0.f);
+							CreateObject(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), OBJECT_EFFECT_CHAR, m_objects[i]->GetTeamType());
+
 						}
 						else if (m_objects[j]->GetType() == OBJECT_CHARACTER && m_objects[i]->GetType() == OBJECT_BULLET)
 						{
 							m_objects[j]->SetDamage(m_objects[i]->GetLife());
 							m_objects[i]->SetLife(0.f);
+							CreateObject(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), OBJECT_EFFECT_CHAR, m_objects[i]->GetTeamType());
+
 						}
 						// 빌딩 - 화살 ( building - arrow ) 
 						else if (m_objects[i]->GetType() == OBJECT_BUILDING && m_objects[j]->GetType() == OBJECT_ARROW)
@@ -218,6 +226,8 @@ void SceneMgr::DoColisionTest()
 							{
 								m_objects[i]->SetDamage(m_objects[j]->GetLife());
 								m_objects[j]->SetLife(0.f);
+								CreateObject(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), OBJECT_EFFECT_CHAR, m_objects[i]->GetTeamType());
+
 
 								for (int k = 0; k < MAX_OBJECTS_COUNT; ++k)
 								{
@@ -237,6 +247,8 @@ void SceneMgr::DoColisionTest()
 							{
 								m_objects[j]->SetDamage(m_objects[i]->GetLife());
 								m_objects[i]->SetLife(0.f);
+								CreateObject(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), OBJECT_EFFECT_CHAR, m_objects[i]->GetTeamType());
+
 								for (int k = 0; k < MAX_OBJECTS_COUNT; ++k)
 								{
 									if (m_objects[k] != NULL)
@@ -346,6 +358,12 @@ void SceneMgr::DrawAllObject()
 							m_objects[i]->GetSize(), 1, 1, 1, 1, m_objects[i]->GetMoveDirX() * -1, m_objects[i]->GetMoveDirY() * -1, m_particleTexture, m_objects[i]->GetParticleTime(), LEVEL_SKY);
 					}
 				}
+
+				// draw object damaged effect
+				else if (m_objects[i]->GetType() == OBJECT_EFFECT || m_objects[i]->GetType() == OBJECT_EFFECT_CHAR)
+				{
+					m_Renderer->DrawTexturedRectSeq(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0, m_objects[i]->GetSize(), 1, 1, 1, 1, m_explosionSprite, framex, framey, 5, 3, m_objects[i]->GetLevel());
+				}
 				else
 				{
 					m_Renderer->DrawSolidRect(m_objects[i]->GetPositionX(), m_objects[i]->GetPositionY(), 0,
@@ -448,6 +466,24 @@ void SceneMgr::DoFrameUpdate(float elapsedTime)
 					m_objects[i]->SetFrameX(tempX);
 					m_objects[i]->SetFrameTime(0);
 				}
+
+				else if ( ( m_objects[i]->GetType() == OBJECT_EFFECT || m_objects[i]->GetType() == OBJECT_EFFECT_CHAR )&& m_objects[i]->GetFrameTime() > 0.01f)
+				{
+					m_objects[i]->SetFrameX(m_objects[i]->GetFrameX() + 1);
+					int tempX = m_objects[i]->GetFrameX();
+					int tempY = m_objects[i]->GetFrameY();
+
+					tempX %= 7;
+					if (tempX == 6)
+					{
+						m_objects[i]->SetFrameY(m_objects[i]->GetFrameY() + 1);
+						tempY = (m_objects[i]->GetFrameY()) % 4;
+						m_objects[i]->SetFrameY(tempY);
+					}
+					m_objects[i]->SetFrameX(tempX);
+					m_objects[i]->SetFrameTime(0);
+				}
+
 			}
 
 

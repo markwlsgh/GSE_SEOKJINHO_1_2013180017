@@ -35,7 +35,7 @@ class Object
 	int m_frameY;
 	float m_frameTime;
 
-	bool m_isDamaged;
+	float m_effectFrameTime;
 public:
 	Object(float x, float y, int type, int teamType);
 	~Object();
@@ -74,7 +74,7 @@ public:
 	int GetFrameY() { return m_frameY; }
 	float GetFrameTime() { return m_frameTime; }
 	float GetParticleTime() { return m_particleTime; }
-	float GetDameged() { return m_isDamaged; }
+
 	// Set Functions
 	void SetPosition(float x, float y, float z) { m_x = x; m_y = y; m_z = z; }
 	void SetPositionX(float val) {  m_x = val; }
@@ -109,7 +109,7 @@ public:
 	void SetFrameTime(float val) { m_frameTime = val; }
 
 	void SetParticleTime(float val) { m_particleTime = val; }
-	void SetisDamaged(bool val) { m_isDamaged = val; }
+
 	// Update()
 	void Update(float elapsedTime );
 

@@ -13,6 +13,9 @@
 #define OBJECT_BULLET 2
 #define OBJECT_ARROW 3
 
+#define OBJECT_EFFECT 4
+#define OBJECT_EFFECT_CHAR 5
+
 #define LEVEL_GOD 0
 #define LEVEL_SKY 0.1
 #define LEVEL_GROUND 0.2
@@ -50,6 +53,7 @@ public:
 	 int createSound_enemy;
 	 int createSound_my;
 	 int startSound;
+	 int fireSound;
 	 // 씬 시작 변수
 	 bool m_Start;
 private:

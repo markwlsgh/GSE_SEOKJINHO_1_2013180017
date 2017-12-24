@@ -19,7 +19,7 @@ Object::Object(float x, float y, int type, int teamType) :
 	m_frameY(0),
 	m_frameTime(0.f),
 	m_particleTime(0.f),
-	m_isDamaged(false)
+	m_effectFrameTime(0.f)
 {
 	if (type == OBJECT_BUILDING)
 	{
@@ -127,6 +127,48 @@ Object::Object(float x, float y, int type, int teamType) :
 		m_level = LEVEL_UNDERGROUND;
 	}
 
+
+	else if (type == OBJECT_EFFECT)
+	{
+
+		m_color[0] = 1.0f;
+		m_color[1] = 1.0f;
+		m_color[2] = 1.0f;
+		m_color[3] = 1.0f;
+
+
+		m_moveDir[0] = (((float)std::rand() / (float)RAND_MAX - 0.5f));
+		m_moveDir[1] = (((float)std::rand() / (float)RAND_MAX - 0.5f));
+
+		m_speed = 0.f;
+
+		m_size = 100;
+		m_life = 20;
+
+		m_lifeTime = 5.f;
+		m_level = LEVEL_SKY;
+	}
+	else if (type == OBJECT_EFFECT_CHAR)
+	{
+
+		m_color[0] = 1.0f;
+		m_color[1] = 1.0f;
+		m_color[2] = 1.0f;
+		m_color[3] = 1.0f;
+
+
+		m_moveDir[0] = (((float)std::rand() / (float)RAND_MAX - 0.5f));
+		m_moveDir[1] = (((float)std::rand() / (float)RAND_MAX - 0.5f));
+
+		m_speed = 0.f;
+
+		m_size = 30;
+		m_life = 20;
+
+		m_lifeTime = 5.f;
+		m_level = LEVEL_SKY;
+	}
+
 	else
 	{
 		std::cout << "Wrong Object Type" << type << "\n";
@@ -146,7 +188,7 @@ void Object::Update(float elapsedTime)
 	
 	m_lastBullet += elapsedTimeInSecond;
 	m_lastArrow += elapsedTimeInSecond;
-	//m_frameTime += 
+
 
 	// 현재위치 = 이전위치 + 속도 * 시간
 		m_x = m_x + m_speed * m_moveDir[0] * elapsedTimeInSecond;
@@ -196,6 +238,11 @@ void Object::Update(float elapsedTime)
 		{
 			m_life = 0.f;
 		}
+	}
+
+	if (m_type == OBJECT_EFFECT || m_type == OBJECT_EFFECT_CHAR)
+	{
+		m_life -= 1.0f;
 	}
 
 
